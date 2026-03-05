@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Project">
+    <include path="src/qdu26_sentry_behavior/behavior_trees/patrol.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="ChangePose" editable="true">
+            <input_port name="current_pose"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Condition ID="IsGameStatus" editable="true">
+            <input_port name="expected_game_progress"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Condition ID="IsStatusOK" editable="true">
+            <input_port name="ammo_min"/>
+            <input_port name="heat_max"/>
+            <input_port name="hp_min"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Action ID="PubNav2Goal" editable="true">
+            <input_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Action ID="PublishSpinSpeed" editable="true">
+            <input_port name="spin_speed"/>
+            <input_port name="duration"/>
+            <input_port name="topic_name"/>
+        </Action>
+    </TreeNodesModel>
+</root>

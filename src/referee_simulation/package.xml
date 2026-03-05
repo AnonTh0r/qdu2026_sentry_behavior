@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>referee_simulation</name>
+  <version>0.0.1</version>
+  <description>Referee system simulation for sentry behavior testing</description>
+
+  <maintainer email="jevgenijavir9055@hotmail.com">Jodi Anderson</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- 必须：构建系统 -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 构建依赖：消息生成 + 节点 -->
+  <build_depend>rosidl_default_generators</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  <!-- 运行依赖：消息运行库 + 节点 -->
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <!-- 让这个包被视作一个 interface package（有 msg） -->
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
