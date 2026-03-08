@@ -45,34 +45,11 @@ void SentryBehaviorServer::subscribe(
 {
   auto sub = node()->create_subscription<T>(
     topic, qos,
-    [this, bb_key, topic](const typename T::SharedPtr msg)
+    [this, bb_key](const typename T::SharedPtr msg)
     {
-      // 1) 拿一份“当前正在跑的树”的 blackboard 指针
-      BT::Blackboard::Ptr tree_bb;
-      {
-        std::lock_guard<std::mutex> lock(bb_mutex_);
-        tree_bb = current_tree_bb_;
-      }
-
-      // 2) 树已经创建好，就直接写到这棵树的 blackboard
-      if (tree_bb)
-      {
-        tree_bb->set(bb_key, *msg);
-      }
-      // 树还没起来就什么都不做，等树起来以后再写
-      // （不再用 globalBlackboard 做临时仓库）
-
-      // // 3) 针对 RobotStatus 打日志（沿用你现在的调试习惯）
-      // if constexpr (std::is_same_v<T, referee_interfaces::msg::RobotStatus>)
-      // {
-      //   RCLCPP_INFO(
-      //     node()->get_logger(),
-      //     // "recv RobotStatus on %s: hp=%d, key='%s' (treeBB=%p)",
-      //     topic.c_str(),
-      //     msg->current_hp,
-      //     bb_key.c_str(),
-      //     static_cast<void*>(tree_bb.get()));
-      // }
+      // {@ key} 读的是 rootBlackboard()（最顶层，无父节点），即 globalBlackboard()
+      // 所以必须写到 globalBlackboard() 才能被 {@ key} 读到
+      globalBlackboard()->set(bb_key, *msg);
     });
 
   subscriptions_.push_back(sub);
@@ -174,16 +151,8 @@ void SentryBehaviorServer::onTreeCreated(BT::Tree & tree)
   }
   tick_count_ = 0;
 
-  // 记录当前这棵树的 root blackboard，供订阅回调使用
-  {
-    std::lock_guard<std::mutex> lock(bb_mutex_);
-    current_tree_bb_ = tree.rootBlackboard();
-  }
-
-  RCLCPP_INFO(
-    node()->get_logger(),
-    "onTreeCreated: treeBB=%p",
-    static_cast<void*>(current_tree_bb_.get()));
+  RCLCPP_INFO(node()->get_logger(), "onTreeCreated: globalBB=%p",
+    static_cast<void*>(globalBlackboard().get()));
 }
 
 
