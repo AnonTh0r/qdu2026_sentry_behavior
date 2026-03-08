@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="sentry_multi_points_nav">
+  <BehaviorTree ID="sentry_multi_points_nav">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <ReactiveSequence name="HpGuardedNavigate">
+
+          <Fallback name="HpCheckAndReturn">
+            <IsStatusOK ammo_min="0"
+                        heat_max="350"
+                        hp_min="300"
+                        key_port="{referee_robotStatus}"/>
+
+            <Sequence name="LowHpReturnHome">
+              <!-- last_goal先确定一个值，后期再改 -->
+              <Repeat num_cycles="10">
+                <PubNav2Goal goal="-0.9;-4.71;0.0"
+                            topic_name="goal_pose"/>
+              </Repeat>
+            </Sequence>
+          </Fallback>
+
+          <!-- 这里可以之后慢慢往里面加“多点巡逻”的逻辑，现在先让树能跑通 -->
+
+        </ReactiveSequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+</root>

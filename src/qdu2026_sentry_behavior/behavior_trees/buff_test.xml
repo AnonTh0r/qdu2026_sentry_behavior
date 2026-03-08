@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="buff_test">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus max_remain_time="420"
+                        min_remain_time="0"
+                        expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <ForceSuccess>
+          <RetryUntilSuccessful num_attempts="20">
+            <IsRfidDetected friendly_supply_zone_exchange="false"
+                            friendly_supply_zone_non_exchange="true"
+                            center_gain_point="false"
+                            friendly_fortress_gain_point="false"
+                            key_port="{@referee_rfidStatus}"/>
+          </RetryUntilSuccessful>
+        </ForceSuccess>
+        <ForceSuccess>
+          <Fallback>
+            <Sequence>
+              <Inverter>
+                <IsStatusOK ammo_min="0"
+                            heat_max="350"
+                            hp_min="200"
+                            key_port="{referee_robotStatus}"/>
+              </Inverter>
+              <ChangePose current_pose="3"
+                          topic_name="/referee/set_pose"/>
+            </Sequence>
+            <Sequence>
+              <PubNav2Goal goal="4.65;-3.5;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="500"/>
+            </Sequence>
+          </Fallback>
+        </ForceSuccess>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="ChangePose">
+      <input_port name="current_pose"/>
+      <input_port name="topic_name"
+                  default="/referee/set_pose"/>
+    </Action>
+    <Condition ID="IsGameStatus">
+      <input_port name="max_remain_time"
+                  default="420"/>
+      <input_port name="min_remain_time"
+                  default="0"/>
+      <input_port name="expected_game_progress"
+                  default="4"/>
+      <input_port name="key_port"
+                  default="{@referee_gameStatus}"/>
+    </Condition>
+    <Condition ID="IsRfidDetected">
+      <input_port name="friendly_supply_zone_exchange"
+                  default="false"/>
+      <input_port name="friendly_supply_zone_non_exchange"
+                  default="false"/>
+      <input_port name="center_gain_point"
+                  default="false"/>
+      <input_port name="friendly_fortress_gain_point"
+                  default="false"/>
+      <input_port name="key_port"
+                  default="{@referee_rfidStatus}"/>
+    </Condition>
+    <Condition ID="IsStatusOK">
+      <input_port name="ammo_min"
+                  default="0"/>
+      <input_port name="heat_max"
+                  default="350"/>
+      <input_port name="hp_min"
+                  default="300"/>
+      <input_port name="key_port"
+                  default="{referee_robotStatus}"/>
+    </Condition>
+    <Action ID="PubNav2Goal">
+      <input_port name="goal"
+                  default="0;0;0"/>
+      <input_port name="topic_name"
+                  default="goal_pose"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

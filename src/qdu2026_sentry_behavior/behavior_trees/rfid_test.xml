@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="rfid_test">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus max_remain_time="420"
+                        min_remain_time="0"
+                        expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <ChangePose current_pose="1"
+                    topic_name="/referee/set_pose"/>
+        <PublishSpinSpeed spin_speed="1.0"
+                          duration="0"
+                          topic_name="cmd_spin"/>
+        <ForceSuccess>
+          <Fallback>
+            <IsStatusOK ammo_min="0"
+                        heat_max="350"
+                        hp_min="200"
+                        key_port="{referee_robotStatus}"/>
+            <Sequence>
+              <ChangePose current_pose="3"
+                          topic_name="/referee/set_pose"/>
+              <PubNav2Goal goal="0;0;0"
+                           topic_name="goal_pose"/>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <Delay delay_msec="30000">
+                  <AlwaysFailure/>
+                </Delay>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <IsRfidDetected friendly_supply_zone_exchange="false"
+                                  friendly_supply_zone_non_exchange="true"
+                                  center_gain_point="false"
+                                  friendly_fortress_gain_point="false"
+                                  key_port="{@referee_rfidStatus}"/>
+                </RetryUntilSuccessful>
+              </Parallel>
+            </Sequence>
+            <PubNav2Goal goal="4.65;-3.5;0"
+                         topic_name="goal_pose"/>
+          </Fallback>
+        </ForceSuccess>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="ChangePose">
+      <input_port name="current_pose"/>
+      <input_port name="topic_name"
+                  default="/referee/set_pose"/>
+    </Action>
+    <Condition ID="IsGameStatus">
+      <input_port name="max_remain_time"
+                  default="420"/>
+      <input_port name="min_remain_time"
+                  default="0"/>
+      <input_port name="expected_game_progress"
+                  default="4"/>
+      <input_port name="key_port"
+                  default="{@referee_gameStatus}"/>
+    </Condition>
+    <Condition ID="IsRfidDetected">
+      <input_port name="friendly_supply_zone_exchange"
+                  default="false"/>
+      <input_port name="friendly_supply_zone_non_exchange"
+                  default="false"/>
+      <input_port name="center_gain_point"
+                  default="false"/>
+      <input_port name="friendly_fortress_gain_point"
+                  default="false"/>
+      <input_port name="key_port"
+                  default="{@referee_rfidStatus}"/>
+    </Condition>
+    <Condition ID="IsStatusOK">
+      <input_port name="ammo_min"
+                  default="0"/>
+      <input_port name="heat_max"
+                  default="350"/>
+      <input_port name="hp_min"
+                  default="300"/>
+      <input_port name="key_port"
+                  default="{referee_robotStatus}"/>
+    </Condition>
+    <Action ID="PubNav2Goal">
+      <input_port name="goal"
+                  default="0;0;0"/>
+      <input_port name="topic_name"
+                  default="goal_pose"/>
+    </Action>
+    <Action ID="PublishSpinSpeed">
+      <input_port name="spin_speed"
+                  default="0.0"/>
+      <input_port name="duration"/>
+      <input_port name="topic_name"
+                  default="cmd_spin"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
