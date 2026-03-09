@@ -16,12 +16,18 @@
           <ReactiveSequence>
             <IsStatusOK ammo_min="0"
                         heat_max="350"
-                        hp_min="590"
-                        key_port="{@referee_robotStatus}"/>
+                        hp_min="390"
+                        key_port="{referee_robotStatus}"/>
             <Sequence>
+              <PubNav2Goal goal="2;3;0"
+                           topic_name="goal_pose"/>
               <ChangePose current_pose="2"
                           topic_name="/referee/set_pose"/>
               <Sleep msec="15000"/>
+              <PubNav2Goal goal="1;1;0"
+                           topic_name="goal_pose"/>
+              <ChangePose current_pose="1"
+                          topic_name="/referee/set_pose"/>
               <Sleep msec="15000"/>
             </Sequence>
           </ReactiveSequence>
@@ -32,6 +38,8 @@
                               duration="10"
                               topic_name="cmd_spin"/>
             <Sleep msec="1000"/>
+            <PubNav2Goal goal="3;0;0"
+                         topic_name="goal_pose"/>
           </Sequence>
         </Fallback>
       </Sequence>
@@ -57,6 +65,11 @@
       <input_port name="hp_min"/>
       <input_port name="key_port"/>
     </Condition>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
     <Action ID="PublishSpinSpeed"
             editable="true">
       <input_port name="spin_speed"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" project_name="Project">
-    <include path="src/qdu26_sentry_behavior/behavior_trees/patrol.xml"/>
+    <include path="src/qdu2026_sentry_behavior/behavior_trees/patrol.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
         <Action ID="ChangePose" editable="true">
