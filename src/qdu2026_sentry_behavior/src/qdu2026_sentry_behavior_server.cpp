@@ -16,6 +16,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <thread>
 
 #include "auto_aim_interfaces/msg/armors.hpp"
 #include "auto_aim_interfaces/msg/target.hpp"
@@ -58,21 +59,31 @@ void SentryBehaviorServer::subscribe(
       if (tree_bb)
       {
         tree_bb->set(bb_key, *msg);
-      }
-      // 树还没起来就什么都不做，等树起来以后再写
-      // （不再用 globalBlackboard 做临时仓库）
 
-      // // 3) 针对 RobotStatus 打日志（沿用你现在的调试习惯）
-      // if constexpr (std::is_same_v<T, referee_interfaces::msg::RobotStatus>)
-      // {
-      //   RCLCPP_INFO(
-      //     node()->get_logger(),
-      //     // "recv RobotStatus on %s: hp=%d, key='%s' (treeBB=%p)",
-      //     topic.c_str(),
-      //     msg->current_hp,
-      //     bb_key.c_str(),
-      //     static_cast<void*>(tree_bb.get()));
-      // }
+        // 调试：打印所有裁判系统消息接收情况
+        if constexpr (std::is_same_v<T, referee_interfaces::msg::GameStatus>)
+        {
+          RCLCPP_INFO_THROTTLE(
+            node()->get_logger(), *node()->get_clock(), 2000,
+            "✓ Received GameStatus: progress=%d, time=%d, writing to key='%s'",
+            msg->game_progress, msg->stage_remain_time, bb_key.c_str());
+        }
+        else if constexpr (std::is_same_v<T, referee_interfaces::msg::RobotStatus>)
+        {
+          RCLCPP_INFO_THROTTLE(
+            node()->get_logger(), *node()->get_clock(), 2000,
+            "✓ Received RobotStatus: hp=%d, writing to key='%s'",
+            msg->current_hp, bb_key.c_str());
+        }
+      }
+      else
+      {
+        // 树还没起来，打印警告
+        RCLCPP_WARN_ONCE(
+          node()->get_logger(),
+          "✗ Received message on topic '%s' but tree_bb is null (tree not created yet)",
+          topic.c_str());
+      }
     });
 
   subscriptions_.push_back(sub);
@@ -93,16 +104,19 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   // qdu2026_sentry_behavior::IsStatusOKCondition::setGlobalBlackboard(globalBlackboard());
 
 
-  subscribe<referee_interfaces::msg::EventData>("/referee/event_data", "referee_eventData");
-  subscribe<referee_interfaces::msg::GameRobotHP>("/referee/all_robot_hp", "referee_allRobotHP");
-  subscribe<referee_interfaces::msg::GameStatus>("/referee/game_status", "referee_gameStatus");
+  // 裁判系统消息使用 Reliable QoS 确保不丢失
+  auto referee_qos = rclcpp::QoS(10).reliable().durability_volatile();
+
+  subscribe<referee_interfaces::msg::EventData>("/referee/event_data", "referee_eventData", referee_qos);
+  subscribe<referee_interfaces::msg::GameRobotHP>("/referee/all_robot_hp", "referee_allRobotHP", referee_qos);
+  subscribe<referee_interfaces::msg::GameStatus>("/referee/game_status", "referee_gameStatus", referee_qos);
   subscribe<referee_interfaces::msg::GroundRobotPosition>(
-    "/referee/ground_robot_position", "referee_groundRobotPosition");
-  subscribe<referee_interfaces::msg::RfidStatus>("/referee/rfid_status", "referee_rfidStatus");
-  subscribe<referee_interfaces::msg::RobotStatus>("/referee/robot_status", "referee_robotStatus");
-  subscribe<referee_interfaces::msg::Buff>("/referee/buff", "referee_buff");
-  subscribe<referee_interfaces::msg::OperatingMode>("/referee/operating_mode", "referee_operatingMode");
-  subscribe<referee_interfaces::msg::SetPose>("/referee/set_pose", "referee_pose");
+    "/referee/ground_robot_position", "referee_groundRobotPosition", referee_qos);
+  subscribe<referee_interfaces::msg::RfidStatus>("/referee/rfid_status", "referee_rfidStatus", referee_qos);
+  subscribe<referee_interfaces::msg::RobotStatus>("/referee/robot_status", "referee_robotStatus", referee_qos);
+  subscribe<referee_interfaces::msg::Buff>("/referee/buff", "referee_buff", referee_qos);
+  subscribe<referee_interfaces::msg::OperatingMode>("/referee/operating_mode", "referee_operatingMode", referee_qos);
+  subscribe<referee_interfaces::msg::SetPose>("/referee/set_pose", "referee_pose", referee_qos);
 
 
 
@@ -218,8 +232,8 @@ int main(int argc, char * argv[])
 
   RCLCPP_INFO(action_server->node()->get_logger(), "Starting SentryBehaviorServer");
 
-  rclcpp::executors::MultiThreadedExecutor exec(
-    rclcpp::ExecutorOptions(), 0, false, std::chrono::milliseconds(250));
+  // 使用 SingleThreadedExecutor 避免 Ctrl+C 无法退出的问题
+  rclcpp::executors::SingleThreadedExecutor exec;
   exec.add_node(action_server->node());
   exec.spin();
   exec.remove_node(action_server->node());
@@ -234,4 +248,5 @@ int main(int argc, char * argv[])
   file << xml_models;
 
   rclcpp::shutdown();
+  return 0;
 }
