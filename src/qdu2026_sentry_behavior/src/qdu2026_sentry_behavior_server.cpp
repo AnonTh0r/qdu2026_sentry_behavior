@@ -46,7 +46,7 @@ void SentryBehaviorServer::subscribe(
 {
   auto sub = node()->create_subscription<T>(
     topic, qos,
-    [this, bb_key, topic](const typename T::SharedPtr msg)
+    [this, bb_key](const typename T::SharedPtr msg)
     {
       // 1) 拿一份“当前正在跑的树”的 blackboard 指针
       BT::Blackboard::Ptr tree_bb;
@@ -188,16 +188,8 @@ void SentryBehaviorServer::onTreeCreated(BT::Tree & tree)
   }
   tick_count_ = 0;
 
-  // 记录当前这棵树的 root blackboard，供订阅回调使用
-  {
-    std::lock_guard<std::mutex> lock(bb_mutex_);
-    current_tree_bb_ = tree.rootBlackboard();
-  }
-
-  RCLCPP_INFO(
-    node()->get_logger(),
-    "onTreeCreated: treeBB=%p",
-    static_cast<void*>(current_tree_bb_.get()));
+  RCLCPP_INFO(node()->get_logger(), "onTreeCreated: globalBB=%p",
+    static_cast<void*>(globalBlackboard().get()));
 }
 
 
