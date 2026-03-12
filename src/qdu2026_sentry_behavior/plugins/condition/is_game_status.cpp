@@ -15,22 +15,13 @@ BT::NodeStatus IsGameStatusCondition::checkGameStart()
 {
   int expected_game_progress, min_remain_time, max_remain_time;
 
-  // 方案：直接从 blackboard 读取，不使用 getInput
-  auto bb = config().blackboard;
-  if (!bb) {
-    RCLCPP_ERROR(logger_, "✗ Blackboard is NULL!");
-    return BT::NodeStatus::FAILURE;
-  }
-
-  // 直接读取 referee_gameStatus
+  // 使用 getInput 读取 key_port，支持 {@xxx} 语法从 globalBlackboard 读取
   referee_interfaces::msg::GameStatus msg;
-  try {
-    msg = bb->get<referee_interfaces::msg::GameStatus>("referee_gameStatus");
-  } catch (const std::exception& e) {
+  if (!getInput("key_port", msg)) {
     static auto last_error = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(now - last_error).count() >= 1) {
-      RCLCPP_ERROR(logger_, "✗ Failed to read 'referee_gameStatus': %s", e.what());
+      RCLCPP_ERROR(logger_, "✗ Failed to read 'key_port' (referee_gameStatus)");
       last_error = now;
     }
     return BT::NodeStatus::FAILURE;

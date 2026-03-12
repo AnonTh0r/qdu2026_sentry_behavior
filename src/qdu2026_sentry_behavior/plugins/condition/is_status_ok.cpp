@@ -16,13 +16,6 @@ IsStatusOKCondition::IsStatusOKCondition(const std::string & name, const BT::Nod
 
 BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
 {
-  
-  // RCLCPP_ERROR(logger_, "IsStatusOK *** TICK ***");
-  // RCLCPP_INFO(
-  //   logger_,
-  //   "IsStatusOK: my_bb=%p",
-  //   static_cast<void*>(config().blackboard.get()));
-
   int hp_min   = 300;
   int heat_max = 350;
   int ammo_min = 0;
@@ -31,21 +24,13 @@ BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
   getInput("heat_max", heat_max);
   getInput("ammo_min", ammo_min);
 
-  // 直接从 blackboard 读取，不使用 getInput
-  auto bb = config().blackboard;
-  if (!bb) {
-    RCLCPP_ERROR(logger_, "✗ Blackboard is NULL!");
-    return BT::NodeStatus::FAILURE;
-  }
-
+  // 使用 getInput 读取 key_port，支持 {@xxx} 语法从 globalBlackboard 读取
   referee_interfaces::msg::RobotStatus msg;
-  try {
-    msg = bb->get<referee_interfaces::msg::RobotStatus>("referee_robotStatus");
-  } catch (const std::exception& e) {
+  if (!getInput("key_port", msg)) {
     static auto last_error = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(now - last_error).count() >= 1) {
-      RCLCPP_ERROR(logger_, "✗ Failed to read 'referee_robotStatus': %s", e.what());
+      RCLCPP_ERROR(logger_, "✗ Failed to read 'key_port' (referee_robotStatus)");
       last_error = now;
     }
     return BT::NodeStatus::FAILURE;
@@ -61,11 +46,6 @@ BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
   const int hp = msg.current_hp;
   const bool is_heat_ok = (msg.shooter_17mm_1_barrel_heat <= heat_max);
   const bool is_ammo_ok = (msg.projectile_allowance_17mm >= ammo_min);
-
-  // RCLCPP_ERROR(
-  //   logger_,
-  //   "IsStatusOK DEBUG: hp=%d, hp_base_=%d, hp_min=%d, heat_ok=%d, ammo_ok=%d",
-  //   hp, hp_base_, hp_min, is_heat_ok, is_ammo_ok);
 
   if (hp >= hp_min && is_heat_ok && is_ammo_ok) {
     RCLCPP_INFO(logger_, "[IsStatusOK SIMPLE] RESULT: SUCCESS");
