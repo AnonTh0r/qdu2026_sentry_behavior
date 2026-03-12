@@ -68,23 +68,23 @@ RefereeSimulationNode::RefereeSimulationNode()
 {
   // 话题名必须和 qdu2026_sentry_behavior_server 里订阅的一致
   game_status_pub_ = create_publisher<referee_interfaces::msg::GameStatus>(
-    "referee/game_status", 10);
+    "/referee/game_status", 10);
   game_robot_hp_pub_ = create_publisher<referee_interfaces::msg::GameRobotHP>(
-    "referee/all_robot_hp", 10);
+    "/referee/all_robot_hp", 10);
   event_data_pub_ = create_publisher<referee_interfaces::msg::EventData>(
-    "referee/event_data", 10);
+    "/referee/event_data", 10);
   robot_status_pub_ = create_publisher<referee_interfaces::msg::RobotStatus>(
-    "referee/robot_status", 10);
+    "/referee/robot_status", 10);
   buff_pub_ = create_publisher<referee_interfaces::msg::Buff>(
-    "referee/buff", 10);
+    "/referee/buff", 10);
   set_pose_pub_ = create_publisher<referee_interfaces::msg::SetPose>(
-    "referee/set_pose", 10);
+    "/referee/set_pose", 10);
   ground_robot_pos_pub_ = create_publisher<referee_interfaces::msg::GroundRobotPosition>(
-    "referee/ground_robot_position", 10);
+    "/referee/ground_robot_position", 10);
   rfid_status_pub_ = create_publisher<referee_interfaces::msg::RfidStatus>(
-    "referee/rfid_status", 10);
+    "/referee/rfid_status", 10);
   operating_mode_pub_ = create_publisher<referee_interfaces::msg::OperatingMode>(
-    "referee/operating_mode", 10);
+    "/referee/operating_mode", 10);
 
   // 新增：订阅一个控制 HP 的话题
   hp_cmd_sub_ = create_subscription<std_msgs::msg::Int32>(
