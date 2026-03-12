@@ -184,7 +184,7 @@
                   default="300"
                   type="int">Minimum HP. NOTE: Sentry init/max HP is 400</input_port>
       <input_port name="key_port"
-                  default="{referee_robotStatus}"
+                  default="{@referee_robotStatus}"
                   type="referee_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
     </Condition>
     <Condition ID="PubNav2Goal">

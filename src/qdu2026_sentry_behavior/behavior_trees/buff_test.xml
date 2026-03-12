@@ -25,7 +25,7 @@
                 <IsStatusOK ammo_min="0"
                             heat_max="350"
                             hp_min="200"
-                            key_port="{referee_robotStatus}"/>
+                            key_port="{@referee_robotStatus}"/>
               </Inverter>
               <ChangePose current_pose="3"
                           topic_name="/referee/set_pose"/>
@@ -78,7 +78,7 @@
       <input_port name="hp_min"
                   default="300"/>
       <input_port name="key_port"
-                  default="{referee_robotStatus}"/>
+                  default="{@referee_robotStatus}"/>
     </Condition>
     <Action ID="PubNav2Goal">
       <input_port name="goal"

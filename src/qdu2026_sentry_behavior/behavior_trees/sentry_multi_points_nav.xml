@@ -9,7 +9,7 @@
             <IsStatusOK ammo_min="0"
                         heat_max="350"
                         hp_min="300"
-                        key_port="{referee_robotStatus}"/>
+                        key_port="{@referee_robotStatus}"/>
 
             <Sequence name="LowHpReturnHome">
               <!-- last_goal先确定一个值，后期再改 -->
