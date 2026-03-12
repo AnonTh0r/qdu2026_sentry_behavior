@@ -16,7 +16,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <thread>
 
 #include "auto_aim_interfaces/msg/armors.hpp"
 #include "auto_aim_interfaces/msg/target.hpp"
@@ -32,8 +31,6 @@
 #include "referee_interfaces/msg/set_pose.hpp"
 #include "referee_interfaces/msg/operating_mode.hpp"
 
-#include "qdu2026_sentry_behavior/plugins/condition/is_status_ok.hpp"
-
 
 
 
@@ -48,42 +45,7 @@ void SentryBehaviorServer::subscribe(
     topic, qos,
     [this, bb_key](const typename T::SharedPtr msg)
     {
-      // 1) 拿一份“当前正在跑的树”的 blackboard 指针
-      BT::Blackboard::Ptr tree_bb;
-      {
-        std::lock_guard<std::mutex> lock(bb_mutex_);
-        tree_bb = current_tree_bb_;
-      }
-
-      // 2) 树已经创建好，就直接写到这棵树的 blackboard
-      if (tree_bb)
-      {
-        tree_bb->set(bb_key, *msg);
-
-        // 调试：打印所有裁判系统消息接收情况
-        if constexpr (std::is_same_v<T, referee_interfaces::msg::GameStatus>)
-        {
-          RCLCPP_INFO_THROTTLE(
-            node()->get_logger(), *node()->get_clock(), 2000,
-            "✓ Received GameStatus: progress=%d, time=%d, writing to key='%s'",
-            msg->game_progress, msg->stage_remain_time, bb_key.c_str());
-        }
-        else if constexpr (std::is_same_v<T, referee_interfaces::msg::RobotStatus>)
-        {
-          RCLCPP_INFO_THROTTLE(
-            node()->get_logger(), *node()->get_clock(), 2000,
-            "✓ Received RobotStatus: hp=%d, writing to key='%s'",
-            msg->current_hp, bb_key.c_str());
-        }
-      }
-      else
-      {
-        // 树还没起来，打印警告
-        RCLCPP_WARN_ONCE(
-          node()->get_logger(),
-          "✗ Received message on topic '%s' but tree_bb is null (tree not created yet)",
-          topic.c_str());
-      }
+      globalBlackboard()->set(bb_key, *msg);
     });
 
   subscriptions_.push_back(sub);
@@ -99,26 +61,16 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   node()->declare_parameter("use_cout_logger", false);
   node()->get_parameter("use_cout_logger", use_cout_logger_);
 
-
-  // // ⭐ 关键：把 TreeExecutionServer 的 globalBlackboard 注入到 IsStatusOK 节点里
-  // qdu2026_sentry_behavior::IsStatusOKCondition::setGlobalBlackboard(globalBlackboard());
-
-
-  // 裁判系统消息使用 Reliable QoS 确保不丢失
-  auto referee_qos = rclcpp::QoS(10).reliable().durability_volatile();
-
-  subscribe<referee_interfaces::msg::EventData>("/referee/event_data", "referee_eventData", referee_qos);
-  subscribe<referee_interfaces::msg::GameRobotHP>("/referee/all_robot_hp", "referee_allRobotHP", referee_qos);
-  subscribe<referee_interfaces::msg::GameStatus>("/referee/game_status", "referee_gameStatus", referee_qos);
+  subscribe<referee_interfaces::msg::EventData>("/referee/event_data", "referee_eventData");
+  subscribe<referee_interfaces::msg::GameRobotHP>("/referee/all_robot_hp", "referee_allRobotHP");
+  subscribe<referee_interfaces::msg::GameStatus>("/referee/game_status", "referee_gameStatus");
   subscribe<referee_interfaces::msg::GroundRobotPosition>(
-    "/referee/ground_robot_position", "referee_groundRobotPosition", referee_qos);
-  subscribe<referee_interfaces::msg::RfidStatus>("/referee/rfid_status", "referee_rfidStatus", referee_qos);
-  subscribe<referee_interfaces::msg::RobotStatus>("/referee/robot_status", "referee_robotStatus", referee_qos);
-  subscribe<referee_interfaces::msg::Buff>("/referee/buff", "referee_buff", referee_qos);
-  subscribe<referee_interfaces::msg::OperatingMode>("/referee/operating_mode", "referee_operatingMode", referee_qos);
-  subscribe<referee_interfaces::msg::SetPose>("/referee/set_pose", "referee_pose", referee_qos);
-
-
+    "/referee/ground_robot_position", "referee_groundRobotPosition");
+  subscribe<referee_interfaces::msg::RfidStatus>("/referee/rfid_status", "referee_rfidStatus");
+  subscribe<referee_interfaces::msg::RobotStatus>("/referee/robot_status", "referee_robotStatus");
+  subscribe<referee_interfaces::msg::Buff>("/referee/buff", "referee_buff");
+  subscribe<referee_interfaces::msg::OperatingMode>("/referee/operating_mode", "referee_operatingMode");
+  subscribe<referee_interfaces::msg::SetPose>("/referee/set_pose", "referee_pose");
 
   auto detector_qos = rclcpp::SensorDataQoS();
   subscribe<auto_aim_interfaces::msg::Armors>("/detector/armors", "detector_armors", detector_qos);
@@ -128,9 +80,6 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   auto costmap_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
   subscribe<nav_msgs::msg::OccupancyGrid>(
     "/global_costmap/costmap", "nav_globalCostmap", costmap_qos);
-
-
-    
 }
 
 bool SentryBehaviorServer::onGoalReceived(
@@ -141,45 +90,6 @@ bool SentryBehaviorServer::onGoalReceived(
     payload.c_str());
   return true;
 }
-
-// void SentryBehaviorServer::onTreeCreated(BT::Tree & tree)
-// {
-//   if (use_cout_logger_) {
-//     logger_cout_ = std::make_shared<BT::StdCoutLogger>(tree);
-//   }
-//   tick_count_ = 0;
-
-//   // 1) 记录当前这棵树的 root blackboard
-//   {
-//     std::lock_guard<std::mutex> lock(bb_mutex_);
-//     current_tree_bb_ = tree.rootBlackboard();
-//   }
-
-//   // 2) 启动期兜底：如果 globalBlackboard 里已经有一份 RobotStatus，就拷一份到 treeBB
-//   auto global_bb = globalBlackboard();
-//   if (global_bb && current_tree_bb_) {
-//     try {
-//       auto init_status =
-//         global_bb->get<referee_interfaces::msg::RobotStatus>("referee_robotStatus");
-//       current_tree_bb_->set("referee_robotStatus", init_status);
-
-//       RCLCPP_INFO(
-//         node()->get_logger(),
-//         "onTreeCreated: copy initial RobotStatus hp=%d from globalBB to treeBB=%p",
-//         init_status.current_hp,
-//         static_cast<void*>(current_tree_bb_.get()));
-//     } catch (const std::exception &)
-//     {
-//       // 没有这个 key 或类型不匹配就算了，不影响后面实时订阅
-//     }
-//   }
-
-//   RCLCPP_INFO(
-//     node()->get_logger(),
-//     "onTreeCreated: globalBB=%p, treeBB=%p",
-//     static_cast<void*>(globalBlackboard().get()),
-//     static_cast<void*>(current_tree_bb_.get()));
-// }
 
 void SentryBehaviorServer::onTreeCreated(BT::Tree & tree)
 {
@@ -224,18 +134,14 @@ int main(int argc, char * argv[])
 
   RCLCPP_INFO(action_server->node()->get_logger(), "Starting SentryBehaviorServer");
 
-  // 使用 SingleThreadedExecutor 避免 Ctrl+C 无法退出的问题
-  rclcpp::executors::SingleThreadedExecutor exec;
+  rclcpp::executors::MultiThreadedExecutor exec(
+    rclcpp::ExecutorOptions(), 0, false, std::chrono::milliseconds(250));
   exec.add_node(action_server->node());
   exec.spin();
   exec.remove_node(action_server->node());
 
-  // Groot2 editor requires a model of your registered Nodes.
-  // You don't need to write that by hand, it can be automatically
-  // generated using the following command.
   std::string xml_models = BT::writeTreeNodesModelXML(action_server->factory());
 
-  // Save the XML models to a file
   std::ofstream file(std::filesystem::path(ROOT_DIR) / "behavior_trees" / "models.xml");
   file << xml_models;
 
