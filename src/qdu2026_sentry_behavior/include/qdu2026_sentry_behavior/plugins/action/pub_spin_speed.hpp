@@ -36,6 +36,17 @@ public:
   bool setMessage(example_interfaces::msg::Float32 & msg) override;
 
   bool setHaltMessage(example_interfaces::msg::Float32 & msg) override;
+
+  // 立即完成，不等待
+  BT::NodeStatus onStart() override {
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  BT::NodeStatus onRunning() override {
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  void onHalted() override {}
 };
 
 }  // namespace qdu2026_sentry_behavior

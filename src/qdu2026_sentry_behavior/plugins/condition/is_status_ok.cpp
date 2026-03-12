@@ -1,6 +1,8 @@
 
 #include "qdu2026_sentry_behavior/plugins/condition/is_status_ok.hpp"
 
+#include <chrono>
+
 namespace qdu2026_sentry_behavior
 {
 
@@ -29,22 +31,36 @@ BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
   getInput("heat_max", heat_max);
   getInput("ammo_min", ammo_min);
 
-  auto msg = getInput<referee_interfaces::msg::RobotStatus>("key_port");
-  if (!msg) {
-    RCLCPP_ERROR(logger_, "IsStatusOK *** NO RobotStatus on input port (key_port) ***");
-    return BT::NodeStatus::SUCCESS;
+  // 直接从 blackboard 读取，不使用 getInput
+  auto bb = config().blackboard;
+  if (!bb) {
+    RCLCPP_ERROR(logger_, "✗ Blackboard is NULL!");
+    return BT::NodeStatus::FAILURE;
   }
 
-  // const auto& msg = in.value();
+  referee_interfaces::msg::RobotStatus msg;
+  try {
+    msg = bb->get<referee_interfaces::msg::RobotStatus>("referee_robotStatus");
+  } catch (const std::exception& e) {
+    static auto last_error = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(now - last_error).count() >= 1) {
+      RCLCPP_ERROR(logger_, "✗ Failed to read 'referee_robotStatus': %s", e.what());
+      last_error = now;
+    }
+    return BT::NodeStatus::FAILURE;
+  }
 
-  // RCLCPP_ERROR(
-  //   logger_,
-  //   "IsStatusOK: got RobotStatus from input port (hp=%d)",
-  //   msg->current_hp);
+  static auto last_info = std::chrono::steady_clock::now();
+  auto now2 = std::chrono::steady_clock::now();
+  if (std::chrono::duration_cast<std::chrono::seconds>(now2 - last_info).count() >= 2) {
+    RCLCPP_INFO(logger_, "✓ RobotStatus: hp=%d", msg.current_hp);
+    last_info = now2;
+  }
 
-  const int hp = msg->current_hp;
-  const bool is_heat_ok = (msg->shooter_17mm_1_barrel_heat <= heat_max);
-  const bool is_ammo_ok = (msg->projectile_allowance_17mm >= ammo_min);
+  const int hp = msg.current_hp;
+  const bool is_heat_ok = (msg.shooter_17mm_1_barrel_heat <= heat_max);
+  const bool is_ammo_ok = (msg.projectile_allowance_17mm >= ammo_min);
 
   // RCLCPP_ERROR(
   //   logger_,
@@ -66,7 +82,7 @@ BT::PortsList IsStatusOKCondition::providedPorts()
 {
   return {
     BT::InputPort<referee_interfaces::msg::RobotStatus>(
-      "key_port","RobotStatus port on blackboard"),
+      "key_port", "{@referee_robotStatus}", "RobotStatus port on blackboard"),
     BT::InputPort<int>("hp_min", 300, "Minimum HP. NOTE: Sentry init/max HP is 400"),
     BT::InputPort<int>("heat_max", 350, "Maximum heat. NOTE: Sentry heat limit is 400"),
     BT::InputPort<int>("ammo_min", 0, "Lower then minimum ammo will return FAILURE")};

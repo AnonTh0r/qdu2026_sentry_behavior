@@ -34,6 +34,17 @@ public:
   bool setMessage(geometry_msgs::msg::Twist & msg) override;
 
   bool setHaltMessage(geometry_msgs::msg::Twist & msg) override;
+
+  // 立即完成，不等待
+  BT::NodeStatus onStart() override {
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  BT::NodeStatus onRunning() override {
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  void onHalted() override {}
 };
 
 }  // namespace qdu2026_sentry_behavior

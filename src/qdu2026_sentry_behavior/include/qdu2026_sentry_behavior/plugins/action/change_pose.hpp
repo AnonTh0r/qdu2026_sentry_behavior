@@ -34,6 +34,21 @@ public:
 
 protected:
   bool setMessage(referee_interfaces::msg::SetPose & msg) override;
+
+  // StatefulActionNode 需要实现的方法
+  BT::NodeStatus onStart() override {
+    // 发布消息后立即返回 SUCCESS
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  BT::NodeStatus onRunning() override {
+    // 不应该被调用，因为 onStart 返回 SUCCESS
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  void onHalted() override {
+    // 清理资源（如果需要）
+  }
 };
 
 }  // namespace qdu2026_sentry_behavior

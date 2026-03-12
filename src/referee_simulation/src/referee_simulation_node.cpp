@@ -67,6 +67,7 @@ RefereeSimulationNode::RefereeSimulationNode()
   self_hp_(400)   // 初始 HP，比如 400
 {
   // 话题名必须和 qdu2026_sentry_behavior_server 里订阅的一致
+  // 使用绝对路径 (以 / 开头) 与 behavior server 对齐
   game_status_pub_ = create_publisher<referee_interfaces::msg::GameStatus>(
     "/referee/game_status", 10);
   game_robot_hp_pub_ = create_publisher<referee_interfaces::msg::GameRobotHP>(
