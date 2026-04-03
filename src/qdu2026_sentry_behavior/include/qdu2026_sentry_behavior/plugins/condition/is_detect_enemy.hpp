@@ -27,7 +27,7 @@ namespace qdu2026_sentry_behavior
  * @brief A BT::ConditionNode that checks for the presence of an enemy target
  * returns SUCCESS if an enemy is detected
  */
-class IsDetectEnemyCondition : public BT::SimpleConditionNode
+class IsDetectEnemyCondition : public BT::ConditionNode
 {
 public:
   IsDetectEnemyCondition(const std::string & name, const BT::NodeConfig & config);
@@ -42,7 +42,7 @@ private:
   /**
    * @brief Tick function for game status ports
    */
-  BT::NodeStatus checkEnemy();
+  BT::NodeStatus tick() override;
 
   rclcpp::Logger logger_ = rclcpp::get_logger("IsDetectEnemyCondition");
 };

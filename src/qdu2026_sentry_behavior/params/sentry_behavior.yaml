@@ -1,6 +1,6 @@
 qdu2026_sentry_behavior_server:
   ros__parameters:
-    use_sim_time: true
+    use_sim_time: false
     action_name: qdu2026_sentry_behavior         # Optional
     tick_frequency: 10                           # 降低到 10 Hz，避免卡顿
     groot2_port: 1667                           # Optional (defaults to 1667)
@@ -24,6 +24,8 @@ qdu2026_sentry_behavior_server:
 
 qdu2026_sentry_behavior_client:
   ros__parameters:
-    use_sim_time: true
+    use_sim_time: false
     # target_tree: rmul_2025/rmul_2026
     target_tree: patrol
+    
+

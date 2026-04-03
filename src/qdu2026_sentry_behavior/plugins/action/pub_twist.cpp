@@ -47,10 +47,7 @@ bool PublishTwistAction::setMessage(geometry_msgs::msg::Twist & msg)
 
 bool PublishTwistAction::setHaltMessage(geometry_msgs::msg::Twist & msg)
 {
-  msg.linear.x = 0;
-  msg.linear.y = 0;
-  msg.angular.z = 0;
-  return true;
+  return false;
 }
 
 }  // namespace qdu2026_sentry_behavior

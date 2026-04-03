@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="test_spin">
+    <KeepRunningUntilFailure>
+      <PublishSpinSpeed spin_speed="-0.15"
+                        topic_name="cmd_vel"/>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="PublishSpinSpeed"
+            editable="true">
+      <input_port name="spin_speed"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

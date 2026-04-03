@@ -19,11 +19,11 @@ namespace qdu2026_sentry_behavior
 
 IsRfidDetectedCondition::IsRfidDetectedCondition(
   const std::string & name, const BT::NodeConfig & config)
-: BT::SimpleConditionNode(name, std::bind(&IsRfidDetectedCondition::checkRfidStatus, this), config)
+: BT::ConditionNode(name, config)
 {
 }
 
-BT::NodeStatus IsRfidDetectedCondition::checkRfidStatus()
+BT::NodeStatus IsRfidDetectedCondition::tick()
 {
   bool friendly_fortress_gain_point, friendly_supply_zone_non_exchange,
     friendly_supply_zone_exchange, center_gain_point;

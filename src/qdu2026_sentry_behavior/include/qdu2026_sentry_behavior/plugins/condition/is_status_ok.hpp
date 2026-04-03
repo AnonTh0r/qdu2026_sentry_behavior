@@ -28,7 +28,7 @@ namespace qdu2026_sentry_behavior
  * @brief A BT::ConditionNode that get GameStatus from port and
  * returns SUCCESS when current game status and remain time is expected
  */
-class IsStatusOKCondition : public BT::SimpleConditionNode
+class IsStatusOKCondition : public BT::ConditionNode
 {
 public:
   IsStatusOKCondition(const std::string & name, const BT::NodeConfig & config);
@@ -39,22 +39,8 @@ public:
    */
   static BT::PortsList providedPorts();
 
-  // ⭐ 新增：让 server 能把 globalBlackboard() 传进来
-  static void setGlobalBlackboard(const BT::Blackboard::Ptr& bb)
-  {
-    s_global_bb_ = bb;
-  }
-
 private:
-  /**
-   * @brief Tick function for game status ports
-   */
-
-    // ⭐ 新增：所有 IsStatusOKCondition 实例共享的一份 global blackboard
-  inline static BT::Blackboard::Ptr s_global_bb_;
-
-  int hp_base_ = 400;  // 新增变量，初始化为最大血量（400）
-  BT::NodeStatus checkRobotStatus();
+  BT::NodeStatus tick() override;
 
   rclcpp::Logger logger_ = rclcpp::get_logger("IsStatusOKCondition");
 };

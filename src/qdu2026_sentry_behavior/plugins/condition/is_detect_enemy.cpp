@@ -6,7 +6,7 @@ namespace qdu2026_sentry_behavior
 
 IsDetectEnemyCondition::IsDetectEnemyCondition(
   const std::string & name, const BT::NodeConfig & config)
-: BT::SimpleConditionNode(name, std::bind(&IsDetectEnemyCondition::checkEnemy, this), config)
+: BT::ConditionNode(name, config)
 {
 }
 
@@ -22,7 +22,7 @@ BT::PortsList IsDetectEnemyCondition::providedPorts()
   };
 }
 
-BT::NodeStatus IsDetectEnemyCondition::checkEnemy()
+BT::NodeStatus IsDetectEnemyCondition::tick()
 {
   std::vector<int> expected_armor_ids;
   float max_distance;

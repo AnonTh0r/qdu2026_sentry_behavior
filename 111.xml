@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="patrol111">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <Fallback>
+          <ReactiveSequence>
+            <Inverter>
+              <IsStatusOK ammo_min="0"
+                          heat_max="999"
+                          hp_min="79"
+                          key_port="{@referee_robotStatus}"/>
+            </Inverter>
+            <ReactiveSequence>
+              <Inverter>
+                <IsStatusOK ammo_min="0"
+                            heat_max="999"
+                            hp_min="79"
+                            key_port="{@referee_robotStatus}"/>
+              </Inverter>
+              <KeepRunningUntilFailure>
+                <Sequence>
+                  <Parallel failure_count="1"
+                            success_count="1">
+                    <PublishSpinSpeed spin_speed="0.3"
+                                      topic_name="cmd_vel"/>
+                    <Sequence>
+                      <PubNav2Goal goal="2;2;0"
+                                   topic_name="goal_pose"/>
+                      <Sleep msec="8000"/>
+                    </Sequence>
+                  </Parallel>
+                  <Parallel failure_count="1"
+                            success_count="1">
+                    <PublishSpinSpeed spin_speed="0.3"
+                                      topic_name="cmd_vel"/>
+                    <Sequence>
+                      <PubNav2Goal goal="1;1;0"
+                                   topic_name="goal_pose"/>
+                      <Sleep msec="8000"/>
+                    </Sequence>
+                  </Parallel>
+                </Sequence>
+              </KeepRunningUntilFailure>
+            </ReactiveSequence>
+          </ReactiveSequence>
+          <ReactiveSequence>
+            <Inverter>
+              <IsStatusOK ammo_min="0"
+                          heat_max="999"
+                          hp_min="200"
+                          key_port="{@referee_robotStatus}"/>
+            </Inverter>
+            <Sequence>
+              <ReactiveSequence>
+                <Inverter>
+                  <IsStatusOK ammo_min="0"
+                              heat_max="999"
+                              hp_min="200"
+                              key_port="{@referee_robotStatus}"/>
+                </Inverter>
+                <Parallel failure_count="1"
+                          success_count="1">
+                  <PublishSpinSpeed spin_speed="0.3"
+                                    topic_name="cmd_vel"/>
+                  <Sequence>
+                    <PubNav2Goal goal="3;3;0"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="5000"/>
+                  </Sequence>
+                </Parallel>
+              </ReactiveSequence>
+              <ReactiveSequence>
+                <Inverter>
+                  <IsStatusOK ammo_min="0"
+                              heat_max="999"
+                              hp_min="200"
+                              key_port="{@referee_robotStatus}"/>
+                </Inverter>
+                <Parallel failure_count="1"
+                          success_count="1">
+                  <PublishSpinSpeed spin_speed="0.3"
+                                    topic_name="cmd_vel"/>
+                  <Sequence>
+                    <PubNav2Goal goal="2;2;0"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="5000"/>
+                  </Sequence>
+                </Parallel>
+              </ReactiveSequence>
+              <ReactiveSequence>
+                <Inverter>
+                  <IsStatusOK ammo_min="0"
+                              heat_max="999"
+                              hp_min="200"
+                              key_port="{@referee_robotStatus}"/>
+                </Inverter>
+                <Parallel failure_count="1"
+                          success_count="1">
+                  <PublishSpinSpeed spin_speed="0.3"
+                                    topic_name="cmd_vel"/>
+                  <Sequence>
+                    <PubNav2Goal goal="1;1;0"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="1000"/>
+                  </Sequence>
+                </Parallel>
+              </ReactiveSequence>
+            </Sequence>
+          </ReactiveSequence>
+          <Sequence>
+            <ReactiveSequence>
+              <IsStatusOK ammo_min="0"
+                          heat_max="999"
+                          hp_min="200"
+                          key_port="{@referee_robotStatus}"/>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <PublishSpinSpeed spin_speed="0.15"
+                                  topic_name="cmd_vel"/>
+                <Sequence>
+                  <PubNav2Goal goal="1;1;0"
+                               topic_name="goal_pose"/>
+                  <Sleep msec="8000"/>
+                </Sequence>
+              </Parallel>
+            </ReactiveSequence>
+            <ReactiveSequence>
+              <IsStatusOK ammo_min="0"
+                          heat_max="999"
+                          hp_min="200"
+                          key_port="{@referee_robotStatus}"/>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <PublishSpinSpeed spin_speed="0.15"
+                                  topic_name="cmd_vel"/>
+                <Sequence>
+                  <PubNav2Goal goal="2;2;0"
+                               topic_name="goal_pose"/>
+                  <Sleep msec="8000"/>
+                </Sequence>
+              </Parallel>
+            </ReactiveSequence>
+            <ReactiveSequence>
+              <IsStatusOK ammo_min="0"
+                          heat_max="999"
+                          hp_min="200"
+                          key_port="{@referee_robotStatus}"/>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <PublishSpinSpeed spin_speed="0.15"
+                                  topic_name="cmd_vel"/>
+                <Sequence>
+                  <PubNav2Goal goal="3;3;0"
+                               topic_name="goal_pose"/>
+                  <Sleep msec="8000"/>
+                </Sequence>
+              </Parallel>
+            </ReactiveSequence>
+            <KeepRunningUntilFailure>
+              <ReactiveSequence>
+                <IsStatusOK ammo_min="0"
+                            heat_max="999"
+                            hp_min="200"
+                            key_port="{@referee_robotStatus}"/>
+                <Parallel failure_count="1"
+                          success_count="1">
+                  <PublishSpinSpeed spin_speed="0.15"
+                                    topic_name="cmd_vel"/>
+                  <Sequence>
+                    <PubNav2Goal goal="1;14;0"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="15000"/>
+                    <PubNav2Goal goal="5;14;0"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="15000"/>
+                  </Sequence>
+                </Parallel>
+              </ReactiveSequence>
+            </KeepRunningUntilFailure>
+          </Sequence>
+        </Fallback>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsGameStatus"
+               editable="true">
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="IsStatusOK"
+               editable="true">
+      <input_port name="ammo_min"/>
+      <input_port name="heat_max"/>
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+    <Action ID="PublishSpinSpeed"
+            editable="true">
+      <input_port name="spin_speed"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

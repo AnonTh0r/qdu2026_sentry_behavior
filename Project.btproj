@@ -3,9 +3,9 @@
     <include path="src/qdu2026_sentry_behavior/behavior_trees/patrol.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
-        <Action ID="ChangePose" editable="true">
-            <input_port name="current_pose"/>
-            <input_port name="topic_name"/>
+        <Action ID="ChangePose">
+            <input_port name="topic_name" default="/referee/set_pose" type="std::string">Topic name</input_port>
+            <input_port name="current_pose" default="1" type="int">Pose mode (1: patrol, 2: attack, 3: defence)</input_port>
         </Action>
         <Condition ID="IsGameStatus" editable="true">
             <input_port name="expected_game_progress"/>
@@ -23,7 +23,6 @@
         </Action>
         <Action ID="PublishSpinSpeed" editable="true">
             <input_port name="spin_speed"/>
-            <input_port name="duration"/>
             <input_port name="topic_name"/>
         </Action>
     </TreeNodesModel>

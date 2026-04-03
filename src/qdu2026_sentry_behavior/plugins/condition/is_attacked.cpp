@@ -20,11 +20,11 @@ namespace qdu2026_sentry_behavior
 {
 
 IsAttackedCondition::IsAttackedCondition(const std::string & name, const BT::NodeConfig & config)
-: BT::SimpleConditionNode(name, std::bind(&IsAttackedCondition::checkIsAttacked, this), config)
+: BT::ConditionNode(name, config)
 {
 }
 
-BT::NodeStatus IsAttackedCondition::checkIsAttacked()
+BT::NodeStatus IsAttackedCondition::tick()
 {
   auto msg = getInput<referee_interfaces::msg::RobotStatus>("key_port");
   if (!msg) {

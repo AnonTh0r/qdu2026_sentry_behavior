@@ -16,16 +16,15 @@
 #define qdu2026_sentry_behavior__PLUGINS__ACTION__PUB_SPIN_SPEED_HPP_
 
 #include <string>
-
-#include "behaviortree_ros2/bt_topic_pub_action_node.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include "behaviortree_cpp/action_node.h"
+#include "behaviortree_ros2/ros_node_params.hpp"
 #include "example_interfaces/msg/float32.hpp"
-#include "geometry_msgs/msg/twist.hpp"
 
 namespace qdu2026_sentry_behavior
 {
 
-class PublishSpinSpeedAction
-: public BT::RosTopicPubStatefulActionNode<example_interfaces::msg::Float32>
+class PublishSpinSpeedAction : public BT::StatefulActionNode
 {
 public:
   PublishSpinSpeedAction(
@@ -33,20 +32,13 @@ public:
 
   static BT::PortsList providedPorts();
 
-  bool setMessage(example_interfaces::msg::Float32 & msg) override;
+  BT::NodeStatus onStart() override;
+  BT::NodeStatus onRunning() override;
+  void onHalted() override;
 
-  bool setHaltMessage(example_interfaces::msg::Float32 & msg) override;
-
-  // 立即完成，不等待
-  BT::NodeStatus onStart() override {
-    return BT::NodeStatus::SUCCESS;
-  }
-
-  BT::NodeStatus onRunning() override {
-    return BT::NodeStatus::SUCCESS;
-  }
-
-  void onHalted() override {}
+private:
+  std::shared_ptr<rclcpp::Node> node_;
+  rclcpp::Publisher<example_interfaces::msg::Float32>::SharedPtr publisher_;
 };
 
 }  // namespace qdu2026_sentry_behavior

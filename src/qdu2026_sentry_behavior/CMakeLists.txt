@@ -202,9 +202,24 @@ list(APPEND plugin_libs is_attacked)
 ament_auto_add_library(is_detect_enemy SHARED plugins/condition/is_detect_enemy.cpp)
 list(APPEND plugin_libs is_detect_enemy)
 
+ament_auto_add_library(is_hp_dropping SHARED plugins/condition/is_hp_dropping.cpp)
+list(APPEND plugin_libs is_hp_dropping)
+
+ament_auto_add_library(is_hp_low SHARED plugins/condition/is_hp_low.cpp)
+list(APPEND plugin_libs is_hp_low)
+
+ament_auto_add_library(is_zone_active SHARED plugins/condition/is_zone_active.cpp)
+list(APPEND plugin_libs is_zone_active)
+
 ####### Actions #######
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)
+
+ament_auto_add_library(follow_waypoints_action SHARED plugins/action/follow_waypoints_action.cpp)
+list(APPEND plugin_libs follow_waypoints_action)
+
+ament_auto_add_library(navigate_through_poses_action SHARED plugins/action/navigate_through_poses_action.cpp)
+list(APPEND plugin_libs navigate_through_poses_action)
 
 # ========== 重要：为 pub_nav2_goal 添加 tf2 依赖 ==========
 ament_auto_add_library(pub_nav2_goal SHARED 
@@ -217,6 +232,9 @@ target_link_libraries(pub_nav2_goal
 )
 list(APPEND plugin_libs pub_nav2_goal)
 # ========== 修改结束 ==========
+
+ament_auto_add_library(pub_nav2_goal_pose SHARED plugins/action/pub_nav2_goal_pose.cpp)
+list(APPEND plugin_libs pub_nav2_goal_pose)
 
 ament_auto_add_library(pub_spin_speed SHARED plugins/action/pub_spin_speed.cpp)
 list(APPEND plugin_libs pub_spin_speed)

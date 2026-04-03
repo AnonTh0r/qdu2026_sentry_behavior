@@ -6,8 +6,6 @@
         <ReactiveSequence name="HpGuardedNavigate">
 
           <Fallback name="HpCheckAndReturn">
-            <IsStatusOK ammo_min="0"
-                        heat_max="350"
                         hp_min="300"
                         key_port="{@referee_robotStatus}"/>
 

@@ -22,8 +22,6 @@
           <Fallback>
             <Sequence>
               <Inverter>
-                <IsStatusOK ammo_min="0"
-                            heat_max="350"
                             hp_min="200"
                             key_port="{@referee_robotStatus}"/>
               </Inverter>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="red">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus max_remain_time="420"
+                        min_remain_time="0"
+                        expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <ForceSuccess>
+          <Fallback>
+            <ReactiveSequence>
+                          hp_min="150"
+                          key_port="{@referee_robotStatus}"/>
+              <Sequence>
+                <PubNav2Goal goal="2.16;5.07;0"
+                             topic_name="goal_pose"/>
+                <Sleep msec="21000"/>
+                <Sleep msec="40000"/>
+                <Sleep msec="20000"/>
+                <Sleep msec="20000"/>
+                <Sleep msec="30000"/>
+                <Sleep msec="20000"/>
+                <Sleep msec="80000"/>
+              </Sequence>
+            </ReactiveSequence>
+            <RetryUntilSuccessful num_attempts="-1">
+              <Sequence>
+                <PubNav2Goal goal="5.22;10.16;0"
+                             topic_name="goal_pose"/>
+                <Sleep msec="3000"/>
+                            hp_min="400"
+                            key_port="{@referee_robotStatus}"/>
+              </Sequence>
+            </RetryUntilSuccessful>
+          </Fallback>
+        </ForceSuccess>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="IsGameStatus"
+            editable="true">
+      <input_port name="max_remain_time"/>
+      <input_port name="min_remain_time"/>
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Action>
+    <Action ID="IsStatusOK"
+            editable="true">
+      <input_port name="ammo_min"/>
+      <input_port name="heat_max"/>
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Action>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

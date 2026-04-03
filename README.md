@@ -1,5 +1,172 @@
-我在运行一个ros2导航与决策树的项目中发现了以下的问题：我写了一个基于hp的导航用来初步测试我的决策树是否能跑的通，主要在gazebo和rviz上面进行测试，鉴于目前没有裁判系统，我就又写了一个模拟裁判系统通信的包来和我的决策树进行通信，目前编译正常，且在没有运行导航和仿真的时候通信正常，但是只要打开仿真加导航，决策树的终端就会卡住，具体情况是：CTRL+C无法退出，会i一直输出ctrl+c的键值，在新的终端用topic list和echo也会出现相同的问题，而且导航那边没有按照我的决策树所写的逻辑进行运动，初步怀疑是命名空间的问题，但是表现出来的不是他的问题，然后就是考虑了是不是导航和仿真让cpu负载过大导致决策树卡住，因为我的4核心都跑到了90以上，再然后就是考虑决策树的逻辑写错了。我该怎么排除这些问题，现在我将把可能相关的文件传给你，如果还需要更多再跟我讲
+核心区别
 
+  1. 航点方式（NavigateThroughPoses/FollowWaypoints）
+
+  工作原理：
+  - 从CSV文件一次性加载所有航点（如 rmul26.csv）
+  - 调用Nav2的 /navigate_through_poses 或 /follow_waypoints Action服务
+  - Nav2规划一条连续路径穿越所有点
+  - 机器人平滑移动，不会在中间点停止
+
+  CSV格式：
+  id,pose_x,pose_y,pose_z,rot_x,rot_y,rot_z,rot_w,command,
+  0,0.317783,-3.43582,0,0,0,0,1,
+  1,2.5,1.3,0,0,0,0.707,0.707,
+
+  优势：
+  - 路径优化：Nav2会规划最优轨迹
+  - 动态避障：整个路径过程中持续避障
+  - 不会停顿：机器人连续移动
+  - 可中断：收到反馈，知道当前在第几个航点
+
+  2. 多个PubNav2Goal方式
+
+  工作原理：
+  <PubNav2Goal goal="2;3;0"/>
+  <Sleep msec="15000"/>
+  <PubNav2Goal goal="1;1;0"/>
+  <Sleep msec="15000"/>
+
+  - 每次只发布一个目标点到 /goal_pose 话题
+  - 等待固定时间（如15秒）
+  - 再发布下一个点
+  - 每个点之间完全独立
+
+  劣势：
+  - 机器人会在每个点停下来
+  - 无法保证到达：只是等时间，不检测是否真的到了
+  - 路径不连续：每次都是新的导航任务
+  - 时间浪费：固定等待可能过长或过短
+
+  实际效果对比
+
+航点方式：
+  起点 ──平滑曲线──> 点1 ──平滑曲线──> 点2 ──平滑曲线──> 点3(不停顿)         (不停顿)         (不停顿)
+
+  多PubNav2Goal方式：
+  起点 ──直线──> 点1 [停15秒] ──直线──> 点2 [停15秒] ──直线──> 点3
+                    ↑                    ↑
+                可能没到就发下一个      可能早到了还在等
+
+  总结
+
+  航点导航适合巡逻、快速穿越场景，路径连续高效；多个PubNav2Goal适合需要在每个点执行任务的场景（如拍照、扫描），但效率较低且不够智能。
+
+
+
+   COD的血量检测实现
+
+  1. 数据来源
+
+  COD通过订阅串口数据获取裁判系统信息：
+
+  // WriteToBlackboard节点订阅话题
+  sub_ = global_node_->create_subscription<rm_interfaces::msg::SerialReceiveData>(
+      "/SerialReceiveData", 10,
+      std::bind(&WriteToBlackboard::callback, this, std::placeholders::_1));
+
+  2. 回调函数更新数据
+
+  void callback(const rm_interfaces::msg::SerialReceiveData::SharedPtr msg) {
+      hp = msg->judge_system_data.hp;
+      zone_status = msg->judge_system_data.zone_status;
+      is_defence = msg->judge_system_data.is_defence;
+      is_attack = msg->judge_system_data.is_attack;
+      // ...
+  }
+
+  3. 写入黑板
+
+  WriteToBlackboard 节点每次tick时将最新数据写入黑板：
+
+  setOutput("Hp", hp);
+  setOutput("Zone_status", zone_status);
+  // ...
+
+  4. 条件检测
+
+  HpCondition 从黑板读取血量并判断：
+
+  auto hp_ = getInput<float>("Hp");  // 从黑板读取
+  if (hp < 210) {
+      return SUCCESS;  // 血量低，触发回家
+  }
+  return FAILURE;
+
+  COD vs QDU 对比
+
+  COD方式：
+  - 订阅自定义串口消息 /SerialReceiveData
+  - 通过黑板共享数据
+  - 灵活扩展（6个状态变量）
+
+  QDU方式：
+  - 直接订阅裁判系统标准接口 @referee_robotStatus
+  - 在条件节点内部检测
+  - 使用官方 referee_interfaces 消息
+
+  核心区别：COD需要自己处理串口通信并封装消息，QDU直接用标准裁判系统接口。
+
+  译成功，只有一条无关的 warning（ament_auto_package 头文件安装路径的建议，不影响功能）。
+
+  新增的文件汇总：
+
+  ┌──────────────────────────────────────────────────┬─────────────────────────────────────────────────────────┐
+  │                       文件                       │                          说明                           │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ include/.../waypoint_utils.hpp                   │ CSV 加载工具函数（inline，namespace 内）                │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ include/.../follow_waypoints_action.hpp          │ FollowWaypointsAction 类声明                            │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ plugins/action/follow_waypoints_action.cpp       │ 实现 + CreateRosNodePlugin(..., "FollowWaypoints")      │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ include/.../navigate_through_poses_action.hpp    │ NavigateThroughPosesAction 类声明                       │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ plugins/action/navigate_through_poses_action.cpp │ 实现 + CreateRosNodePlugin(..., "NavigateThroughPoses") │
+  ├──────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+  │ CMakeLists.txt                                   │ 新增两个 ament_auto_add_library 条目                    │
+  └──────────────────────────────────────────────────┴─────────────────────────────────────────────────────────┘
+
+  在 XML 行为树中使用时：
+
+  <!-- 逐点停靠（每个航点都会停）-->
+  <FollowWaypoints waypoint_file="/path/to/waypoints.csv" frame_id="map" current_waypoint="{wp_idx}"/>
+
+  <!-- 平滑穿越（不在中间点停留，适合巡逻）-->
+  <NavigateThroughPoses waypoint_file="/path/to/waypoints.csv" frame_id="map" current_waypoint="{wp_idx}"/>
+
+  CSV 格式与 COD 项目相同：id,pose_x,pose_y,pose_z,rot_x,rot_y,rot_z,rot_w[,command,wait_sec]
+
+● 全部完成，总结一下改动：
+
+  ---
+  改动内容
+
+  6 个 condition 文件，每个做了 3 处修改：
+
+  1. .hpp 基类：BT::SimpleConditionNode → BT::ConditionNode
+  2. .hpp 方法：checkXxx() → tick() override
+  3. .cpp 构造函数：删掉 std::bind(...) 参数，改为 BT::ConditionNode(name, config)
+  4. .cpp 方法定义：::checkXxx() → ::tick()
+
+  额外清理了 is_status_ok.hpp 里的残留历史代码（s_global_bb_、hp_base_、setGlobalBlackboard）。
+
+  ---
+  为什么这样就解决了
+
+  ConditionNode::executeTick() 源码里有这段保护：
+
+  // BT.CPP 源码
+  NodeStatus ConditionNode::executeTick() {
+      auto status = tick();
+      if (status == NodeStatus::RUNNING) {
+          throw LogicError("ConditionNode must never return RUNNING");
+      }
+      return status;
+  }
+
+  SimpleConditionNode 绕过了这个 executeTick()，直接调用你传入的 std::function，所以返回 RUNNING 时不报错、悄悄卡住。换回 ConditionNode 后，一旦误返回 RUNNING
+  就会立即抛出异常，问题暴露得早、好定位。
 
 
 
@@ -111,3 +278,102 @@ source install/setup.bash
     </Action>
   </TreeNodesModel>
 </root>
+
+
+修改完成。主要变更：                                 
+                                                                                          
+  结构改动：                                                                                                                         
+  - hp_min 从 150 改为 200                                                                                                           
+  - 前进路径：1;1;0 → Sleep 8s → 2;2;0 → Sleep 8s → 8.37;-0.35;0 → 等待                                                              
+  - 返回路径：2;2;0 → Sleep 8s → 1;1;0 → Sleep 8s → 3.09;2.36;0（顺序反向）                                                          
+  - 顺手修复了 goal=";0" 的损坏值                                                                                                    
+                                                                                                                                     
+  绿色虚线卡住的原因：                                                                                                               
+                                                                                                                                     
+  原来 Sleep 总共只有约 96 秒。Sleep 全部跑完后，内层 Sequence 返回 SUCCESS → ReactiveSequence 也返回 SUCCESS →                      
+  KeepRunningUntilFailure 重新循环从头开始 → IsStatusOK 在重置间隙没有被检查，机器人又重新导航到终点，如此反复。                     
+                                                                                                                                     
+  不是 "节点完成就认为任务完成不检测了"，ReactiveSequence 每个 tick 都会先重新检查 IsStatusOK。问题在于 Sleep                        
+  总时长不够覆盖整场比赛。
+                                                                                                                                     
+  修复方法： 改为 8 × 60s = 480 秒，超过比赛总时长（420s），内层 Sequence 在正常比赛中永远不会走完，ReactiveSequence 始终处于 RUNNING
+   状态持续检测 hp。
+                                                                                                                                     
+✻ Sautéed for 46s                                                                                                                  
+                                                                                          
+❯ tick的话是每个sleep结束后tick吗                                                                                                    
+                                                                                                                                     
+● 不是，tick 是由行为树引擎持续循环调用的，频率通常是每隔几毫秒一次（取决于你的 server 配置，一般 10~100ms 一个 tick）。             
+                                                                                                                                     
+  Sleep 节点的工作方式是：                                                                                                           
+   
+  tick N:   Sleep.onStart() → 记录开始时间，返回 RUNNING                                                                             
+  tick N+1: Sleep.onRunning() → 检查elapsed < duration → 返回 RUNNING                                                                
+  tick N+2: Sleep.onRunning() → 检查elapsed < duration → 返回 RUNNING                                                                
+  ...                                                                                                                                
+  tick N+k: Sleep.onRunning() → elapsed >= duration → 返回 SUCCESS                                                                   
+                                                                                                                                     
+  Sleep 在计时期间每个 tick 都返回 RUNNING，并不是"睡眠期间停止 tick"。                                                              
+   
+  所以 ReactiveSequence 的行为是这样的：                                                                                             
+                                                            
+  每个 tick:                                                                                                                         
+    1. 先 tick IsStatusOK（重新检查 hp）                    
+       └─ SUCCESS → 继续                                                                                                             
+       └─ FAILURE → 整个 ReactiveSequence 立即返回 FAILURE（hp 触发）                                                                
+    2. 再 tick 内层 Sequence（从当前位置继续，比如当前在某个 Sleep）                                                                 
+       └─ Sleep 返回 RUNNING → ReactiveSequence 返回 RUNNING                                                                         
+                                                                                                                                     
+  关键：IsStatusOK 每个 tick 都被检查，不需要等 Sleep 结束。hp 一旦低于 200，在下一个 tick 就会立即触发返回分支，响应延迟只有 1 个   
+  tick（几毫秒到几十毫秒）。                                
+                                                                                                                                     
+❯ 为什么在现实中如果他现在是绿色虚线,下次tick就不会再运行这个节点,但是在模拟中就还能运行                                             
+  ⎿  ⧉ Selected 1 lines from README.md in Visual Studio Code             
+
+
+
+
+
+  对，如果 hp>150，IsStatusOK 返回 SUCCESS，ReactiveSequence 继续执行：                                                                                                                              
+                                                                                                                                                                                                     
+  <ReactiveSequence>                                                                                                                                                                                 
+    <IsStatusOK hp_min="150" .../>  <!-- SUCCESS -->                                                                                                                                                 
+    <Sequence>                                                                                                                                                                                       
+      <PubNav2Goal .../>              <!-- SUCCESS，发布点 -->                                                                                                                                       
+      <Sleep msec="21000"/>           <!-- SUCCESS，等21秒 -->                                                                                                                                       
+      <Sleep msec="40000"/>           <!-- SUCCESS，等40秒 -->                                                                                                                                       
+      ...             <!-- 后续 Sleep 全 SUCCESS -->                                                                                                                                                 
+    </Sequence>                                                                                                                                                                                      
+  </ReactiveSequence>                                                                                                                                                                                
+                                                                                                                                                                                                     
+  所有 Sleep 跑完后，内层 Sequence 返回 SUCCESS，ReactiveSequence 也 SUCCESS，Fallback 的第一个子节点成功，返回 SUCCESS，ForceSuccess 包一层还是 SUCCESS，外层 Sequence 也 SUCCESS。                 
+                                                                                                                                                                                                     
+  然后 KeepRunningUntilFailure 重新 tick，又从头开始：                                                                                                                                               
+                  
+  1. RetryUntilSuccessful → IsGameStatus → SUCCESS（比赛还在进行）                                                                                                                                   
+  2. ForceSuccess → Fallback → ReactiveSequence → IsStatusOK → 这里是关键
+                                                                                                                                                                                                     
+  ReactiveSequence 的特性：每次 tick 都会重新检查所有前置条件。                                                                                                                                      
+                                                                                                                                                                                                     
+  所以第二轮进入时，IsStatusOK 会重新检查 hp。如果 hp 还>150，应该继续执行 PubNav2Goal。                                                                                                             
+                  
+  但你说"卡死了"，可能的原因：                                                                                                                                                                       
+                  
+  ReactiveSequence 在重新 tick 时，内层 Sequence 的状态没有被重置，它记住了上一轮的 SUCCESS 状态，不会重新执行子节点。                                                                               
+                  
+  这是 BT.CPP 的已知行为——ReactiveSequence 只会重新检查条件节点，但 Action 节点（PubNav2Goal、Sleep）如果已经 SUCCESS，不会自动重置。                                                                
+                  
+  解决方法：在 Sequence 外面包一层 ForceFailure，强制让它每轮都重新执行：                                                                                                                            
+                  
+  <ReactiveSequence>                                                                                                                                                                                 
+    <IsStatusOK hp_min="150" .../>                                                                                                                                                                   
+    <ForceFailure>                                                                                                                                                                                   
+      <Sequence>                                                                                                                                                                                     
+        <PubNav2Goal .../>                                                                                                                                                                           
+        <Sleep msec="21000"/>                                                                                                                                                                        
+        ...                                                                                                                                                                                          
+      </Sequence>                                                                                                                                                                                    
+    </ForceFailure>                                                                                                                                                                                  
+  </ReactiveSequence>                                                                                                                                                                                
+                  
+  这样每轮 Sequence 都会返回 FAILURE，KeepRunningUntilFailure 会继续循环。 

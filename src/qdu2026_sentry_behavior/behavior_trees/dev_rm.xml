@@ -8,8 +8,6 @@
                       friendly_fortress_gain_point="false"
                       key_port="{@referee_rfidStatus}"/>
       <RetryUntilSuccessful num_attempts="-1">
-        <IsStatusOK ammo_min="0"
-                    heat_max="100"
                     hp_min="399"
                     key_port="{@referee_robotStatus}"/>
       </RetryUntilSuccessful>
@@ -89,8 +87,6 @@
   <BehaviorTree ID="test_go_to_supply">
     <Repeat num_cycles="-1">
       <WhileDoElse>
-        <IsStatusOK ammo_min="0"
-                    heat_max="350"
                     hp_min="350"
                     key_port="{@referee_robotStatus}"/>
         <Sequence>

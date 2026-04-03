@@ -10,7 +10,6 @@
       <ForceFailure>
         <Sequence>
           <PublishSpinSpeed spin_speed="0.0"
-                            duration="0.0"
                             topic_name="cmd_spin"/>
           <PublishTwist v_y="0.0"
                         v_yaw="0.0"
@@ -24,8 +23,6 @@
 
   <BehaviorTree ID="check_robot_status">
     <Fallback>
-      <IsStatusOK ammo_min="0"
-                  heat_max="350"
                   hp_min="200"
                   key_port="{@referee_robotStatus}"/>
       <ForceFailure>
@@ -48,7 +45,6 @@
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
           <PublishSpinSpeed spin_speed="1.0"
-                            duration="0.0"
                             topic_name="cmd_spin"/>
           <SubTree ID="check_robot_status"/>
           <PubNav2Goal goal="4.65;-3.5;0"

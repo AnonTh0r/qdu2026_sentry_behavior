@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="blue">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="-1">
+        <IsGameStatus max_remain_time="420"
+                      min_remain_time="0"
+                      expected_game_progress="4"
+                      key_port="{@referee_gameStatus}"/>
+      </RetryUntilSuccessful>
+      <Repeat num_cycles="-1">
+        <Fallback>
+          <ReactiveSequence>
+                        hp_min="150"
+                        key_port="{@referee_robotStatus}"/>
+            <Sequence>
+              <PubNav2Goal goal="5.30;0.31;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="5000"/>
+              <PubNav2Goal goal="4.99;4.97;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="5000"/>
+              <PubNav2Goal goal="2.12;5.00;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+            </Sequence>
+          </ReactiveSequence>
+          <RetryUntilSuccessful num_attempts="-1">
+            <Sequence>
+              <PubNav2Goal goal="4.99;4.97;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="4000"/>
+              <PubNav2Goal goal="5.30;0.31;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="4000"/>
+              <PubNav2Goal goal="-0.59;-0.38;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+              <Sleep msec="6000"/>
+                          hp_min="400"
+                          key_port="{@referee_robotStatus}"/>
+              <Sleep msec="6000"/>
+            </Sequence>
+          </RetryUntilSuccessful>
+        </Fallback>
+      </Repeat>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="IsGameStatus"
+            editable="true">
+      <input_port name="max_remain_time"/>
+      <input_port name="min_remain_time"/>
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Action>
+    <Action ID="IsStatusOK"
+            editable="true">
+      <input_port name="ammo_min"/>
+      <input_port name="heat_max"/>
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Action>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

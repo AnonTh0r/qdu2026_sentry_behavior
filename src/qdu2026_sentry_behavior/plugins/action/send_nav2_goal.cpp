@@ -15,6 +15,8 @@
 #include "qdu2026_sentry_behavior/plugins/action/send_nav2_goal.hpp"
 
 #include "qdu2026_sentry_behavior/custom_types.hpp"
+#include <string>
+#include <sstream>
 
 namespace qdu2026_sentry_behavior
 {
@@ -27,11 +29,41 @@ SendNav2GoalAction::SendNav2GoalAction(
 
 bool SendNav2GoalAction::setGoal(nav2_msgs::action::NavigateToPose::Goal & goal)
 {
-  auto receive_goal = getInput<geometry_msgs::msg::PoseStamped>("goal");
+  std::string goal_str;
+  if (!getInput("goal", goal_str))
+  {
+    RCLCPP_ERROR(logger(), "SendNav2Goal: 'goal' input missing");
+    return false;
+  }
+
+  double x, y;
+  try
+  {
+    std::stringstream ss(goal_str);
+    std::string token;
+
+    if (!std::getline(ss, token, ';')) throw std::runtime_error("bad format");
+    x = std::stod(token);
+
+    if (!std::getline(ss, token, ';')) throw std::runtime_error("bad format");
+    y = std::stod(token);
+  }
+  catch (const std::exception & e)
+  {
+    RCLCPP_ERROR(logger(), "SendNav2Goal: invalid 'goal' = '%s' (%s)",
+                 goal_str.c_str(), e.what());
+    return false;
+  }
 
   goal.pose.header.frame_id = "map";
-  goal.pose.header.stamp = now();
-  goal.pose.pose = receive_goal->pose;
+  goal.pose.header.stamp.sec = 0;
+  goal.pose.header.stamp.nanosec = 0;
+
+  goal.pose.pose.position.x = x;
+  goal.pose.pose.position.y = y;
+  goal.pose.pose.position.z = 0.0;
+
+  goal.pose.pose.orientation.w = 1.0;
 
   return true;
 }
@@ -75,8 +107,8 @@ BT::NodeStatus SendNav2GoalAction::onFailure(BT::ActionNodeErrorCode error)
 BT::PortsList SendNav2GoalAction::providedPorts()
 {
   BT::PortsList additional_ports = {
-    BT::InputPort<geometry_msgs::msg::PoseStamped>(
-      "goal", "0;0;0", "Expected goal pose that send to nav2. Fill with format `x;y;yaw`"),
+    BT::InputPort<std::string>(
+      "goal", "0;0;0", "Expected goal pose that send to nav2. Format `x;y;yaw` in map frame"),
   };
   return providedBasicPorts(additional_ports);
 }

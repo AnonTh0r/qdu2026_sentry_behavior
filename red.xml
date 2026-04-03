@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="red">
+    <KeepRunningUntilFailure>
+      <Fallback>
+        <Sequence>
+          <IsStatusOK ammo_min="0"
+                      heat_max="0"
+                      hp_min="400"
+                      key_port="{@referee_robotStatus}"/>
+          <PubNav2Goal goal="2.16;5.07;0"
+                       topic_name="goal_pose"/>
+          <Sleep msec="4000"/>
+        </Sequence>
+        <Sequence>
+          <IsStatusOK ammo_min="0"
+                      heat_max="0"
+                      hp_min="150"
+                      key_port="{@referee_robotStatus}"/>
+          <PubNav2Goal goal="5.22;10.16;0"
+                       topic_name="goal_pose"/>
+        </Sequence>
+        <PubNav2Goal goal="5.22;10.16;0"
+                     topic_name="goal_pose"/>
+      </Fallback>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsStatusOK"
+               editable="true">
+      <input_port name="ammo_min"/>
+      <input_port name="heat_max"/>
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

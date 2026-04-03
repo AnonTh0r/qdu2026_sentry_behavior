@@ -33,8 +33,8 @@ bool PubNav2GoalAction::setMessage(geometry_msgs::msg::PoseStamped & msg)
     return false;
   }
 
-  // 2. 解析 x;y;yaw
-  double x, y, yaw;
+  // 2. 解析 x;y
+  double x, y;
   try
   {
     std::stringstream ss(goal_str);
@@ -45,9 +45,6 @@ bool PubNav2GoalAction::setMessage(geometry_msgs::msg::PoseStamped & msg)
 
     if (!std::getline(ss, token, ';')) throw std::runtime_error("bad format");
     y = std::stod(token);
-
-    if (!std::getline(ss, token, ';')) throw std::runtime_error("bad format");
-    yaw = std::stod(token);
   }
   catch (const std::exception & e)
   {
@@ -68,9 +65,7 @@ bool PubNav2GoalAction::setMessage(geometry_msgs::msg::PoseStamped & msg)
   msg.pose.position.y = y;
   msg.pose.position.z = 0.0;
 
-  tf2::Quaternion q;
-  q.setRPY(0.0, 0.0, yaw);
-  msg.pose.orientation = tf2::toMsg(q);
+  msg.pose.orientation.w = 1.0;
 
   return true;
 }

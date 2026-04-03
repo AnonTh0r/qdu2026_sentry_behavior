@@ -7,35 +7,41 @@
           <IsGameStatus expected_game_progress="4"
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
-        <ChangePose current_pose="1"
-                    topic_name="/referee/set_pose"/>
-        <PublishSpinSpeed spin_speed="0.3"
-                          duration="100"
-                          topic_name="cmd_spin"/>
+        <ChangePose topic_name="/referee/set_pose"
+                    current_pose="1"/>
         <Fallback>
           <ReactiveSequence>
-            <IsStatusOK ammo_min="0"
-                        heat_max="350"
-                        hp_min="390"
-                        key_port="{@referee_robotStatus}"/>
             <Sequence>
-              <PubNav2Goal goal="2;3;0"
+              <PubNav2Goal goal="-2.31;0.77;0"
                            topic_name="goal_pose"/>
-              <ChangePose current_pose="2"
-                          topic_name="/referee/set_pose"/>
-              <Sleep msec="15000"/>
-              <PubNav2Goal goal="1;1;0"
+              <Sleep msec="8000"/>
+              <PubNav2Goal goal="-4;0.81;0"
                            topic_name="goal_pose"/>
-              <ChangePose current_pose="1"
-                          topic_name="/referee/set_pose"/>
-              <Sleep msec="15000"/>
+              <Sleep msec="5000"/>
+              <ChangePose topic_name="/referee/set_pose"
+                          current_pose="2"/>
+              <PubNav2Goal goal="-6;0.8;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="8000"/>
+              <PubNav2Goal goal="-10.31;1.58;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="8000"/>
+              <ChangePose topic_name="/referee/set_pose"
+                          current_pose="1"/>
+              <PubNav2Goal goal="7.29;-0.89;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="20000"/>
+              <PubNav2Goal goal="8.49;-4.62;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="20000"/>
             </Sequence>
           </ReactiveSequence>
+                      hp_min="590"
+                      key_port="{@referee_robotStatus}"/>
           <Sequence>
-            <ChangePose current_pose="3"
-                        topic_name="/referee/set_pose"/>
+            <ChangePose topic_name="/referee/set_pose"
+                        current_pose="3"/>
             <PublishSpinSpeed spin_speed="0.3"
-                              duration="10"
                               topic_name="cmd_spin"/>
             <Sleep msec="1000"/>
             <PubNav2Goal goal="3;0;0"
@@ -48,10 +54,13 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="ChangePose"
-            editable="true">
-      <input_port name="current_pose"/>
-      <input_port name="topic_name"/>
+    <Action ID="ChangePose">
+      <input_port name="topic_name"
+                  default="/referee/set_pose"
+                  type="std::string">Topic name</input_port>
+      <input_port name="current_pose"
+                  default="1"
+                  type="int">Pose mode (1: patrol, 2: attack, 3: defence)</input_port>
     </Action>
     <Condition ID="IsGameStatus"
                editable="true">
@@ -73,7 +82,6 @@
     <Action ID="PublishSpinSpeed"
             editable="true">
       <input_port name="spin_speed"/>
-      <input_port name="duration"/>
       <input_port name="topic_name"/>
     </Action>
   </TreeNodesModel>

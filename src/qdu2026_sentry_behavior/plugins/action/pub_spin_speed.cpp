@@ -19,31 +19,43 @@ namespace qdu2026_sentry_behavior
 
 PublishSpinSpeedAction::PublishSpinSpeedAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
-: RosTopicPubStatefulActionNode(name, config, params)
+: BT::StatefulActionNode(name, config), node_(params.nh)
 {
+  std::string topic_name = params.default_port_value;
+  auto it = config.input_ports.find("topic_name");
+  if (it != config.input_ports.end() && !it->second.empty() &&
+      it->second != "__default__placeholder__")
+  {
+    topic_name = it->second;
+  }
+  publisher_ = node_->create_publisher<example_interfaces::msg::Float32>(topic_name, 1);
 }
 
 BT::PortsList PublishSpinSpeedAction::providedPorts()
 {
-  return providedBasicPorts({
+  return {
+    BT::InputPort<std::string>("topic_name", "__default__placeholder__", "Topic name"),
     BT::InputPort<double>("spin_speed", 0.0, "Angular Z velocity (rad/s)"),
-  });
+  };
 }
 
-bool PublishSpinSpeedAction::setMessage(example_interfaces::msg::Float32 & msg)
+BT::NodeStatus PublishSpinSpeedAction::onStart()
+{
+  return onRunning();
+}
+
+BT::NodeStatus PublishSpinSpeedAction::onRunning()
 {
   double spin_speed = 0.0;
   getInput("spin_speed", spin_speed);
-
-  msg.data = spin_speed;
-
-  return true;
+  example_interfaces::msg::Float32 msg;
+  msg.data = static_cast<float>(spin_speed);
+  publisher_->publish(msg);
+  return BT::NodeStatus::RUNNING;
 }
 
-bool PublishSpinSpeedAction::setHaltMessage(example_interfaces::msg::Float32 & msg)
+void PublishSpinSpeedAction::onHalted()
 {
-  msg.data = 0;
-  return true;
 }
 
 }  // namespace qdu2026_sentry_behavior

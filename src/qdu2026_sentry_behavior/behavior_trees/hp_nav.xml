@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="hp_nav">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <!-- 等待比赛开始（game_progress == 4） -->
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+      <ForceSuccess>
+        <Fallback>
+
+          <!-- Branch A: hp >= 150 -->
+          <!-- ReactiveSequence 每 tick 重新检查 hp，hp 不足时立即中止导航切换到 Branch B -->
+          <ReactiveSequence>
+                        hp_min="150"
+                        key_port="{@referee_robotStatus}"/>
+            <Sequence>
+              <!-- Step 1: 先到达 3;3;0（每3s重发防 abort，共等待约9s） -->
+              <PubNav2Goal goal="3;3;0" topic_name="goal_pose"/>
+              <Sleep msec="3000"/>
+              <PubNav2Goal goal="3;3;0" topic_name="goal_pose"/>
+              <Sleep msec="3000"/>
+              <PubNav2Goal goal="3;3;0" topic_name="goal_pose"/>
+              <Sleep msec="3000"/>
+              <!-- Step 2: 在 4;4;0 和 5;5;0 之间循环巡逻（每段每3s重发防 abort） -->
+              <KeepRunningUntilFailure>
+                <Sequence>
+                  <PubNav2Goal goal="4;4;0" topic_name="goal_pose"/>
+                  <Sleep msec="3000"/>
+                  <PubNav2Goal goal="4;4;0" topic_name="goal_pose"/>
+                  <Sleep msec="3000"/>
+                  <PubNav2Goal goal="5;5;0" topic_name="goal_pose"/>
+                  <Sleep msec="3000"/>
+                  <PubNav2Goal goal="5;5;0" topic_name="goal_pose"/>
+                  <Sleep msec="3000"/>
+                </Sequence>
+              </KeepRunningUntilFailure>
+            </Sequence>
+          </ReactiveSequence>
+
+          <!-- Branch B: hp < 150，导航到 0;0;0 并等待 hp 恢复到 400 -->
+          <!-- RetryUntilSuccessful 每 3s 重发一次目标，避免 nav2 abort 后停止 -->
+          <!-- 只有 hp >= 400 时 Sequence 才成功，Branch B 才退出，回到 Branch A -->
+          <RetryUntilSuccessful num_attempts="-1">
+            <Sequence>
+              <PubNav2Goal goal="0;0;0"
+                           topic_name="goal_pose"/>
+              <Sleep msec="3000"/>
+                          hp_min="400"
+                          key_port="{@referee_robotStatus}"/>
+            </Sequence>
+          </RetryUntilSuccessful>
+
+        </Fallback>
+      </ForceSuccess>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsGameStatus">
+      <input_port name="max_remain_time" default="420" type="int">Maximum remaining time (s)</input_port>
+      <input_port name="min_remain_time" default="0" type="int">Minimum remaining time (s)</input_port>
+      <input_port name="expected_game_progress" default="4" type="int">Expected game progress stage</input_port>
+      <input_port name="key_port" default="{@referee_gameStatus}" type="referee_interfaces::msg::GameStatus_&lt;std::allocator&lt;void&gt; &gt;">GameStatus port on blackboard</input_port>
+    </Condition>
+    <Condition ID="IsStatusOK">
+      <input_port name="ammo_min" default="0" type="int">Lower then minimum ammo will return FAILURE</input_port>
+      <input_port name="heat_max" default="400" type="int">Maximum heat. NOTE: Sentry heat limit is 400</input_port>
+      <input_port name="hp_min" default="300" type="int">Minimum HP. NOTE: Sentry init/max HP is 400</input_port>
+      <input_port name="key_port" default="{@referee_robotStatus}" type="referee_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
+    </Condition>
+    <Condition ID="PubNav2Goal">
+      <input_port name="goal" default="0;0;0" type="std::string">Expected goal pose that send to nav2. Format `x;y;yaw` in map frame</input_port>
+      <input_port name="topic_name" default="__default__placeholder__" type="std::string">Topic name</input_port>
+    </Condition>
+  </TreeNodesModel>
+
+</root>

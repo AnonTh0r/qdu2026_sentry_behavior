@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="patrol22">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <Parallel failure_count="1"
+                  success_count="2">
+          <!-- 旋转逻辑 -->
+          <Fallback>
+            <ReactiveSequence>
+                          hp_min="400"
+                          key_port="{@referee_robotStatus}"/>
+              <PublishSpinSpeed spin_speed="-0.15"
+                                topic_name="cmd_spin"/>
+            </ReactiveSequence>
+            <PublishSpinSpeed spin_speed="-0.3"
+                              topic_name="cmd_spin"/>
+          </Fallback>
+          <!-- 导航逻辑：hp>=80 走 1;1;0->2;2;0->3;3;0 停留，hp<80 去 0;0;0 -->
+          <Fallback>
+            <ReactiveSequence>
+                          hp_min="80"
+                          key_port="{@referee_robotStatus}"/>
+              <Sequence>
+                <PubNav2Goal goal="1;1;0"
+                             topic_name="goal_pose"/>
+                <Sleep msec="8000"/>
+                <PubNav2Goal goal="2;2;0"
+                             topic_name="goal_pose"/>
+                <Sleep msec="8000"/>
+                <PubNav2Goal goal="3;3;0"
+                             topic_name="goal_pose"/>
+                <AlwaysRunning/>
+              </Sequence>
+            </ReactiveSequence>
+            <Sequence>
+              <PubNav2Goal goal="0;0;0"
+                           topic_name="goal_pose"/>
+              <AlwaysRunning/>
+            </Sequence>
+          </Fallback>
+        </Parallel>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsGameStatus"
+               editable="true">
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="IsStatusOK"
+               editable="true">
+      <input_port name="ammo_min"/>
+      <input_port name="heat_max"/>
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+    <Action ID="PublishSpinSpeed"
+            editable="true">
+      <input_port name="spin_speed"/>
+      <input_port name="topic_name"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

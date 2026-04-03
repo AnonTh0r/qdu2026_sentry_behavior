@@ -27,7 +27,7 @@ namespace qdu2026_sentry_behavior
  * @brief A BT::ConditionNode that get GameStatus from port and
  * returns SUCCESS when current game status and remain time is expected
  */
-class IsAttackedCondition : public BT::SimpleConditionNode
+class IsAttackedCondition : public BT::ConditionNode
 {
 public:
   IsAttackedCondition(const std::string & name, const BT::NodeConfig & config);
@@ -42,7 +42,7 @@ private:
   /**
    * @brief Tick function for robot_status ports
    */
-  BT::NodeStatus checkIsAttacked();
+  BT::NodeStatus tick() override;
 
   rclcpp::Logger logger_ = rclcpp::get_logger("IsAttackedCondition");
 };

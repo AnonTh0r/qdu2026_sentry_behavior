@@ -7,11 +7,11 @@ namespace qdu2026_sentry_behavior
 
 IsGameStatusCondition::IsGameStatusCondition(
   const std::string & name, const BT::NodeConfig & config)
-: BT::SimpleConditionNode(name, std::bind(&IsGameStatusCondition::checkGameStart, this), config)
+: BT::ConditionNode(name, config)
 {
 }
 
-BT::NodeStatus IsGameStatusCondition::checkGameStart()
+BT::NodeStatus IsGameStatusCondition::tick()
 {
   int expected_game_progress, min_remain_time, max_remain_time;
 
