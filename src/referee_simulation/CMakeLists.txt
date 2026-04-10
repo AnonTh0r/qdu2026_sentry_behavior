@@ -3,9 +3,11 @@ project(referee_simulation)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(referee_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)  # RobotStatus 里用到 Pose 的话需要
 find_package(std_msgs REQUIRED)
+find_package(nav2_msgs REQUIRED)
 
 
 add_executable(referee_simulation_node
@@ -19,8 +21,19 @@ ament_target_dependencies(referee_simulation_node
   std_msgs
 )
 
+add_executable(mock_navigate_through_poses
+  src/mock_navigate_through_poses.cpp
+)
+
+ament_target_dependencies(mock_navigate_through_poses
+  rclcpp
+  rclcpp_action
+  nav2_msgs
+)
+
 install(TARGETS
   referee_simulation_node
+  mock_navigate_through_poses
   DESTINATION lib/${PROJECT_NAME}
 )
 
