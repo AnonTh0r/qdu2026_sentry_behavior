@@ -102,6 +102,15 @@ def generate_launch_description():
                 arguments=["--ros-args", "--log-level", log_level],
             ),
 
+            # === 受击旋转（独立后台节点，行为树外） ===
+            Node(
+                package="qdu2026_sentry_behavior",
+                executable="spin_on_attack_node",
+                name="spin_on_attack_node",
+                output="screen",
+                parameters=[configured_params],
+            ),
+
             # === Client 1：跑 sentry_multi_points_nav ===
             Node(
                 package="qdu2026_sentry_behavior",

@@ -164,8 +164,12 @@ ament_auto_find_build_dependencies()
 ###########
 
 # ========== 修改这部分：取消注释并添加依赖 ==========
-ament_auto_add_executable(qdu2026_sentry_behavior_server 
+ament_auto_add_executable(qdu2026_sentry_behavior_server
   src/qdu2026_sentry_behavior_server.cpp
+)
+
+ament_auto_add_executable(spin_on_attack_node
+  src/spin_on_attack_node.cpp
 )
 
 # 为 server 添加 tf2 依赖
@@ -211,6 +215,9 @@ list(APPEND plugin_libs is_hp_low)
 ament_auto_add_library(is_zone_active SHARED plugins/condition/is_zone_active.cpp)
 list(APPEND plugin_libs is_zone_active)
 
+ament_auto_add_library(stay_home SHARED plugins/condition/stay_home.cpp)
+list(APPEND plugin_libs stay_home)
+
 ####### Actions #######
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)
@@ -253,6 +260,9 @@ list(APPEND plugin_libs calculate_attack_pose)
 
 ament_auto_add_library(change_pose SHARED plugins/action/change_pose.cpp)
 list(APPEND plugin_libs change_pose)
+
+ament_auto_add_library(write_status SHARED plugins/action/write_status.cpp)
+list(APPEND plugin_libs write_status)
 
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
