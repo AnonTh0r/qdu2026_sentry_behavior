@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="test_navigation">
+    <Sequence>
+      <!-- 等待比赛开始 -->
+      <RetryUntilSuccessful num_attempts="-1">
+        <IsGameStatus max_remain_time="420"
+                      min_remain_time="0"
+                      expected_game_progress="4"
+                      key_port="{@referee_gameStatus}"/>
+      </RetryUntilSuccessful>
+
+      <!-- 主循环：参照COD的ReactiveFallback模式 -->
+      <KeepRunningUntilFailure>
+        <ReactiveFallback>
+          <!-- 优先级1：HP低 → 回家回血 -->
+          <Sequence>
+            <Inverter>
+              <IsStatusOK hp_min="200"
+                          key_port="{@referee_robotStatus}"/>
+            </Inverter>
+            <NavigateThroughPoses waypoint_file="/home/navii/code/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/home.csv"
+                                  frame_id="map"
+                                  action_name="navigate_through_poses"/>
+            <StayHome hp_min="350"
+                      key_port="{@referee_robotStatus}"/>
+          </Sequence>
+
+          <!-- 优先级2：HP正常 → 巡逻 -->
+          <NavigateThroughPoses waypoint_file="/home/navii/code/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/patrol.csv"
+                                frame_id="map"
+                                action_name="navigate_through_poses"/>
+
+          <!-- 兜底：防止所有分支都失败导致树退出 -->
+          <AlwaysSuccess/>
+        </ReactiveFallback>
+      </KeepRunningUntilFailure>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="IsGameStatus"
+            editable="true">
+      <input_port name="max_remain_time"/>
+      <input_port name="min_remain_time"/>
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Action>
+    <Condition ID="IsStatusOK"
+               editable="true">
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="StayHome"
+               editable="true">
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="NavigateThroughPoses"
+            editable="true">
+      <input_port name="waypoint_file"/>
+      <input_port name="frame_id"/>
+      <input_port name="action_name"/>
+      <output_port name="current_waypoint"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

@@ -1,29 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" project_name="Project">
-    <include path="src/qdu2026_sentry_behavior/behavior_trees/patrol.xml"/>
+    <include path="src/qdu2026_sentry_behavior/behavior_trees/test_navigation.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
-        <Action ID="ChangePose">
-            <input_port name="topic_name" default="/referee/set_pose" type="std::string">Topic name</input_port>
-            <input_port name="current_pose" default="1" type="int">Pose mode (1: patrol, 2: attack, 3: defence)</input_port>
-        </Action>
-        <Condition ID="IsGameStatus" editable="true">
+        <Action ID="IsGameStatus" editable="true">
+            <input_port name="max_remain_time"/>
+            <input_port name="min_remain_time"/>
             <input_port name="expected_game_progress"/>
+            <input_port name="key_port"/>
+        </Action>
+        <Condition ID="IsRfidDetected" editable="true">
+            <input_port name="friendly_supply_zone_exchange"/>
+            <input_port name="friendly_supply_zone_non_exchange"/>
+            <input_port name="center_gain_point"/>
+            <input_port name="friendly_fortress_gain_point"/>
             <input_port name="key_port"/>
         </Condition>
         <Condition ID="IsStatusOK" editable="true">
-            <input_port name="ammo_min"/>
-            <input_port name="heat_max"/>
             <input_port name="hp_min"/>
             <input_port name="key_port"/>
         </Condition>
-        <Action ID="PubNav2Goal" editable="true">
-            <input_port name="goal"/>
-            <input_port name="topic_name"/>
+        <Action ID="NavigateThroughPoses" editable="true">
+            <input_port name="waypoint_file"/>
+            <input_port name="frame_id"/>
+            <input_port name="action_name"/>
+            <output_port name="current_waypoint"/>
         </Action>
-        <Action ID="PublishSpinSpeed" editable="true">
-            <input_port name="spin_speed"/>
-            <input_port name="topic_name"/>
+        <Action ID="SendNav2Goal" editable="true">
+            <input_port name="goal"/>
+            <input_port name="action_name"/>
         </Action>
     </TreeNodesModel>
 </root>

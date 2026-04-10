@@ -26,6 +26,6 @@ qdu2026_sentry_behavior_client:
   ros__parameters:
     use_sim_time: false
     # target_tree: rmul_2025/rmul_2026
-    target_tree: patrol
+    target_tree: test_navigation_spin
     
 
