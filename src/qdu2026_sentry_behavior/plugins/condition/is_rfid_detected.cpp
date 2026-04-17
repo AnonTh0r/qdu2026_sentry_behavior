@@ -38,12 +38,29 @@ BT::NodeStatus IsRfidDetectedCondition::tick()
   getInput("friendly_supply_zone_exchange", friendly_supply_zone_exchange);
   getInput("center_gain_point", center_gain_point);
 
-  if (
-    (friendly_fortress_gain_point && msg->friendly_fortress_gain_point == msg->DETECTED) ||
-    (friendly_supply_zone_non_exchange &&
-     msg->friendly_supply_zone_non_exchange == msg->DETECTED) ||
-    (friendly_supply_zone_exchange && msg->friendly_supply_zone_exchange == msg->DETECTED) ||
-    (center_gain_point && msg->center_gain_point == msg->DETECTED)) {
+  bool detected = false;
+
+  if (friendly_fortress_gain_point && msg->friendly_fortress_gain_point == msg->DETECTED) {
+    RCLCPP_INFO(logger_, "RFID Detected: 己方堡垒增益点 (Friendly Fortress Gain Point)");
+    detected = true;
+  }
+
+  if (friendly_supply_zone_non_exchange && msg->friendly_supply_zone_non_exchange == msg->DETECTED) {
+    RCLCPP_INFO(logger_, "RFID Detected: 己方补给区 (Friendly Supply Zone Non-Exchange)");
+    detected = true;
+  }
+
+  if (friendly_supply_zone_exchange && msg->friendly_supply_zone_exchange == msg->DETECTED) {
+    RCLCPP_INFO(logger_, "RFID Detected: 己方兑换补给区 (Friendly Supply Zone Exchange)");
+    detected = true;
+  }
+
+  if (center_gain_point && msg->center_gain_point == msg->DETECTED) {
+    RCLCPP_INFO(logger_, "RFID Detected: 中心增益点 (Center Gain Point)");
+    detected = true;
+  }
+
+  if (detected) {
     return BT::NodeStatus::SUCCESS;
   } else {
     return BT::NodeStatus::FAILURE;

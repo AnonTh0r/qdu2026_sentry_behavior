@@ -1,0 +1,11 @@
+bt_navigator:
+  ros__parameters:
+    robot_base_frame: base_footprint
+
+controller_server:
+  ros__parameters:
+    robot_base_frame: base_footprint
+
+planner_server:
+  ros__parameters:
+    robot_base_frame: base_footprint

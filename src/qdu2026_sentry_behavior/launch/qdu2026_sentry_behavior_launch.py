@@ -82,6 +82,12 @@ def generate_launch_description():
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),
             Node(
+                package="tf2_ros",
+                executable="static_transform_publisher",
+                name="base_link_tf_fix",
+                arguments=["0", "0", "0", "0", "0", "0", "gimbal_yaw_fake", "base_link"],
+            ),
+            Node(
                 package="qdu2026_sentry_behavior",
                 executable="qdu2026_sentry_behavior_server",
                 name="qdu2026_sentry_behavior_server",
