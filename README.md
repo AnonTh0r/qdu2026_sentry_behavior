@@ -1,3 +1,74 @@
+现在我理解用户的问题了！
+
+用户说：
+
+启动时HP=400
+第一次改成HP=90 → IsHpLow触发，第一个Sequence中的PubNav2Goal变成SUCCESS（绿色）
+HP恢复到400 → 但是IsHpLow的PubNav2Goal不变成其他状态（还是绿色）
+第二次再改成HP=90 → IsHpLow正常响应，但PubNav2Goal依旧是SUCCESS（绿色）
+问题是：PubNav2Goal一旦变成SUCCESS后，就一直保持SUCCESS状态，不会变回IDLE
+
+这是Groot显示的问题，还是实际的树执行问题？
+
+让我分析一下树的结构：
+
+
+<KeepRunningUntilFailure>
+  <Sequence>
+    <RetryUntilSuccessful>
+      <IsGameStatus expected_game_progress="4"/>
+    </RetryUntilSuccessful>
+    <ReactiveFallback>
+      <Sequence>
+        <IsHpLow hp_threshold="200"/>
+        <ReactiveSequence>
+          <PubNav2Goal goal="1.1;0.44;0"/>
+        </ReactiveSequence>
+      </Sequence>
+      <PubNav2Goal goal="1.62;-7.12;0"/>
+      <AlwaysSuccess/>
+    </ReactiveFallback>
+  </Sequence>
+</KeepRunningUntilFailure>
+执行流程：
+
+HP=400时：
+
+IsHpLow返回FAILURE
+第一个Sequence失败
+ReactiveFallback执行第二个分支：PubNav2Goal(1.62;-7.12;0)返回SUCCESS
+第三个分支：AlwaysSuccess（不会执行，因为已经有SUCCESS了）
+ReactiveFallback返回SUCCESS
+HP=90时（第一次）：
+
+IsHpLow返回SUCCESS
+ReactiveSequence执行：PubNav2Goal(1.1;0.44;0)返回SUCCESS
+ReactiveSequence返回SUCCESS
+第一个Sequence返回SUCCESS
+ReactiveFallback得到SUCCESS，返回SUCCESS（不会执行后面的分支）
+HP恢复到400：
+
+IsHpLow返回FAILURE
+第一个Sequence失败
+ReactiveFallback执行第二个分支：PubNav2Goal(1.62;-7.12;0)返回SUCCESS
+问题在于：ReactiveSequence中的PubNav2Goal在第一个Sequence失败后，不会被重置为IDLE
+
+这是因为：
+
+当第一个Sequence失败时，ReactiveFallback会跳过它，执行第二个分支
+第一个Sequence中的ReactiveSequence和PubNav2Goal不会被tick，所以保持之前的状态（SUCCESS）
+Groot显示的是最后一次tick的状态，如果节点没有被tick，就保持之前的状态
+这不是"卡死"，而是Groot的显示问题。实际上树在正常工作，只是Groot显示的颜色让人误以为节点还在执行。
+
+但用户说"第二次再改成HP=90 → hplow的pubnav2goal依旧是success"，这可能意味着：
+
+第二次HP降低时，PubNav2Goal确实被执行了（返回SUCCESS）
+但用户期望看到状态变化（从IDLE到RUNNING到SUCCESS），而不是一直是SUCCESS
+或者，用户遇到的真正问题是：第二次HP降低时，机器人的行为不对（比如不导航到回家点）？
+
+让我问清楚用户的具体问题。
+
+
 核心区别
 
   1. 航点方式（NavigateThroughPoses/FollowWaypoints）

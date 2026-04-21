@@ -4,58 +4,60 @@
     <KeepRunningUntilFailure>
       <Sequence>
         <RetryUntilSuccessful num_attempts="-1">
-          <IsGameStatus max_remain_time="420"
-                        min_remain_time="0"
-                        expected_game_progress="4"
+          <IsGameStatus expected_game_progress="4"
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
         <Repeat num_cycles="-1">
-        <Fallback>
-          <ReactiveSequence>
-            <IsStatusOK hp_min="150"
-                        key_port="{@referee_robotStatus}"/>
-            <Sequence>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="5.30;0.31;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="4.99;4.97;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="2.12;5.00;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-            </Sequence>
-          </ReactiveSequence>
-          <RetryUntilSuccessful num_attempts="-1">
-            <Sequence>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="4.99;4.97;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="5.30;0.31;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-              <RetryUntilSuccessful num_attempts="-1">
-                <SendNav2Goal goal="-0.59;-0.38;0" action_name="navigate_to_pose"/>
-              </RetryUntilSuccessful>
-              <IsStatusOK hp_min="400"
+          <Fallback>
+            <ReactiveSequence>
+              <IsStatusOK hp_min="150"
                           key_port="{@referee_robotStatus}"/>
-            </Sequence>
-          </RetryUntilSuccessful>
-        </Fallback>
-      </Repeat>
-    </Sequence>
+              <Sequence>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="5.30;0.31;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="4.99;4.97;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="2.12;5.00;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+              </Sequence>
+            </ReactiveSequence>
+            <RetryUntilSuccessful num_attempts="-1">
+              <Sequence>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="4.99;4.97;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="5.30;0.31;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+                <RetryUntilSuccessful num_attempts="-1">
+                  <SendNav2Goal goal="-0.59;-0.38;0"
+                                action_name="navigate_to_pose"/>
+                </RetryUntilSuccessful>
+                <IsStatusOK hp_min="400"
+                            key_port="{@referee_robotStatus}"/>
+              </Sequence>
+            </RetryUntilSuccessful>
+          </Fallback>
+        </Repeat>
+      </Sequence>
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="IsGameStatus"
-            editable="true">
-      <input_port name="max_remain_time"/>
-      <input_port name="min_remain_time"/>
+    <Condition ID="IsGameStatus"
+               editable="true">
       <input_port name="expected_game_progress"/>
       <input_port name="key_port"/>
-    </Action>
+    </Condition>
     <Condition ID="IsStatusOK"
                editable="true">
       <input_port name="hp_min"/>

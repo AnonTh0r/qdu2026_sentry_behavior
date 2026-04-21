@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="red">
+  <BehaviorTree ID="weilaibei2">
     <KeepRunningUntilFailure>
       <Sequence>
         <RetryUntilSuccessful num_attempts="-1">
           <IsGameStatus expected_game_progress="4"
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
-        <ForceSuccess>
-          <Fallback>
+        <ReactiveFallback>
+          <Sequence>
+            <IsHpLow hp_threshold="200"
+                     key_port="{@referee_robotStatus}"/>
             <ReactiveSequence>
-              <Sequence>
-                <PubNav2Goal goal="2.16;5.07;0"
-                             topic_name="goal_pose"/>
-                <Sleep msec="21000"/>
-                <Sleep msec="40000"/>
-                <Sleep msec="20000"/>
-                <Sleep msec="20000"/>
-                <Sleep msec="30000"/>
-                <Sleep msec="20000"/>
-                <Sleep msec="80000"/>
-              </Sequence>
+              <PubNav2Goal goal="1.1;0.44;0"
+                           topic_name="goal_pose"/>
             </ReactiveSequence>
-            <RetryUntilSuccessful num_attempts="-1">
-              <Sequence>
-                <PubNav2Goal goal="5.22;10.16;0"
-                             topic_name="goal_pose"/>
-                <Sleep msec="3000"/>
-              </Sequence>
-            </RetryUntilSuccessful>
-          </Fallback>
-        </ForceSuccess>
+          </Sequence>
+          <ReactiveSequence>
+            <PubNav2Goal goal="1.62;-7.12;0"
+                         topic_name="goal_pose"/>
+          </ReactiveSequence>
+        </ReactiveFallback>
       </Sequence>
     </KeepRunningUntilFailure>
   </BehaviorTree>
@@ -40,6 +30,11 @@
     <Condition ID="IsGameStatus"
                editable="true">
       <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="IsHpLow"
+               editable="true">
+      <input_port name="hp_threshold"/>
       <input_port name="key_port"/>
     </Condition>
     <Condition ID="PubNav2Goal"

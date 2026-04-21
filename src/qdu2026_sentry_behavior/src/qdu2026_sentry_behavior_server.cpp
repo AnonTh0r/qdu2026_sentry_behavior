@@ -21,6 +21,7 @@
 #include "auto_aim_interfaces/msg/target.hpp"
 #include "behaviortree_cpp/xml_parsing.h"
 #include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "referee_interfaces/msg/buff.hpp"
 #include "referee_interfaces/msg/event_data.hpp"
 #include "referee_interfaces/msg/game_robot_hp.hpp"
@@ -80,6 +81,9 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   auto costmap_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
   subscribe<nav_msgs::msg::OccupancyGrid>(
     "/global_costmap/costmap", "nav_globalCostmap", costmap_qos);
+
+  // 订阅 odometry 用于 WaitUntilReached 节点
+  subscribe<nav_msgs::msg::Odometry>("/odometry", "odom");
 }
 
 bool SentryBehaviorServer::onGoalReceived(

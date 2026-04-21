@@ -218,6 +218,9 @@ list(APPEND plugin_libs is_zone_active)
 ament_auto_add_library(stay_home SHARED plugins/condition/stay_home.cpp)
 list(APPEND plugin_libs stay_home)
 
+ament_auto_add_library(wait_until_reached SHARED plugins/condition/wait_until_reached.cpp)
+list(APPEND plugin_libs wait_until_reached)
+
 ####### Actions #######
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)

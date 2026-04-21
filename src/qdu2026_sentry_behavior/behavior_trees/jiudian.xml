@@ -9,21 +9,16 @@
         </RetryUntilSuccessful>
         <Fallback>
           <Sequence>
-                        hp_min="400"
-                        key_port="{@referee_robotStatus}"/>
             <PubNav2Goal goal="1.62;-7.12;0"
                          topic_name="goal_pose"/>
-            <Sleep msec="10000"/>
             <PubNav2Goal goal="1.62;-7.12;0"
                          topic_name="goal_pose"/>
-            <Sleep msec="10000"/>
             <PubNav2Goal goal="1.62;-7.12;0"
                          topic_name="goal_pose"/>
-            <Sleep msec="4000"/>
           </Sequence>
+          <IsStatusOK hp_min="200"
+                      key_port="/robot_status"/>
           <Sequence>
-                        hp_min="150"
-                        key_port="{@referee_robotStatus}"/>
             <PubNav2Goal goal="1.1;0.44;0"
                          topic_name="goal_pose"/>
             <Sleep msec="10000"/>
@@ -33,8 +28,6 @@
             <PubNav2Goal goal="1.1;0.44;0"
                          topic_name="goal_pose"/>
           </Sequence>
-          <PubNav2Goal goal="5.22;10.16;0"
-                       topic_name="goal_pose"/>
         </Fallback>
       </Sequence>
     </KeepRunningUntilFailure>
@@ -49,16 +42,14 @@
     </Condition>
     <Condition ID="IsStatusOK"
                editable="true">
-      <input_port name="ammo_min"/>
-      <input_port name="heat_max"/>
       <input_port name="hp_min"/>
       <input_port name="key_port"/>
     </Condition>
-    <Action ID="PubNav2Goal"
-            editable="true">
+    <Condition ID="PubNav2Goal"
+               editable="true">
       <input_port name="goal"/>
       <input_port name="topic_name"/>
-    </Action>
+    </Condition>
   </TreeNodesModel>
 
 </root>

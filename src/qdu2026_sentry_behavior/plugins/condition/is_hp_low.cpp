@@ -36,11 +36,14 @@ BT::NodeStatus IsHpLowCondition::tick()
 
   const int hp = msg.current_hp;
 
+  RCLCPP_INFO(logger_, "IsHpLow check: current_hp=%d, threshold=%d", hp, hp_threshold);
+
   if (hp < hp_threshold) {
-    RCLCPP_DEBUG(logger_, "HP is critically low: %d < %d", hp, hp_threshold);
+    RCLCPP_WARN(logger_, "HP is critically low: %d < %d, returning SUCCESS", hp, hp_threshold);
     return BT::NodeStatus::SUCCESS;
   }
 
+  RCLCPP_INFO(logger_, "HP is OK: %d >= %d, returning FAILURE", hp, hp_threshold);
   return BT::NodeStatus::FAILURE;
 }
 

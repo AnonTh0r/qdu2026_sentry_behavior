@@ -114,6 +114,11 @@
         <Decorator ID="TickAfterTimeout">
             <input_port name="timeout" type="float">time in s to wait before ticking child again</input_port>
         </Decorator>
+        <Condition ID="WaitUntilReached">
+            <input_port name="tolerance" type="double" default="0.500000">Distance tolerance in meters</input_port>
+            <input_port name="odom" type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;" default="{@odom}">Current odometry from blackboard</input_port>
+            <input_port name="goal" type="std::string">Target position in format 'x;y;yaw'</input_port>
+        </Condition>
         <Action ID="WriteStatus">
             <output_port name="max_hp" type="int" default="{max_hp}">Maximum HP</output_port>
             <output_port name="hp" type="int" default="{hp}">Current HP</output_port>
