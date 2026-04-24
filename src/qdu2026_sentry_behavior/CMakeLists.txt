@@ -221,6 +221,9 @@ list(APPEND plugin_libs stay_home)
 ament_auto_add_library(wait_until_reached SHARED plugins/condition/wait_until_reached.cpp)
 list(APPEND plugin_libs wait_until_reached)
 
+ament_auto_add_library(get_current_pose SHARED plugins/condition/get_current_pose.cpp)
+list(APPEND plugin_libs get_current_pose)
+
 ####### Actions #######
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)
@@ -266,6 +269,9 @@ list(APPEND plugin_libs change_pose)
 
 ament_auto_add_library(write_status SHARED plugins/action/write_status.cpp)
 list(APPEND plugin_libs write_status)
+
+ament_auto_add_library(get_detected_rfid SHARED plugins/action/get_detected_rfid.cpp)
+list(APPEND plugin_libs get_detected_rfid)
 
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)

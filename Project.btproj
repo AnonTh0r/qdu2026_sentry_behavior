@@ -11,18 +11,14 @@
             <input_port name="hp_threshold"/>
             <input_port name="key_port"/>
         </Condition>
-        <Condition ID="IsStatusOK" editable="true">
-            <input_port name="hp_min"/>
-            <input_port name="key_port"/>
-        </Condition>
         <Condition ID="PubNav2Goal" editable="true">
             <input_port name="goal"/>
             <input_port name="topic_name"/>
         </Condition>
-        <Condition ID="WaitUntilReached" editable="true">
-            <input_port name="goal"/>
-            <input_port name="odom"/>
-            <input_port name="tolerance"/>
+        <Condition ID="WaitUntilReached">
+            <input_port name="tolerance" default="0.500000" type="double">Distance tolerance in meters</input_port>
+            <input_port name="odom" default="{@odom}" type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;">Current odometry from blackboard</input_port>
+            <input_port name="goal" type="std::string">Target position in format 'x;y;yaw'</input_port>
         </Condition>
     </TreeNodesModel>
 </root>

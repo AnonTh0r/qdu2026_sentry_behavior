@@ -240,7 +240,7 @@ Groot显示的是最后一次tick的状态，如果节点没有被tick，就保�
   就会立即抛出异常，问题暴露得早、好定位。
 
 
-
+ ***常用指令
 ros2 launch rmu_gazebo_simulator bringup_sim.launch.py
 ros2 launch qdu2026_sentry_behavior qdu2026_sentry_behavior_multi.launch.py   namespace:=red_standard_robot1
 

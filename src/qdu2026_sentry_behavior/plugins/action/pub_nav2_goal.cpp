@@ -67,6 +67,9 @@ bool PubNav2GoalAction::setMessage(geometry_msgs::msg::PoseStamped & msg)
 
   msg.pose.orientation.w = 1.0;
 
+  RCLCPP_INFO(node_->get_logger(), "PubNav2Goal publishing: goal='%s' (x=%.2f, y=%.2f)",
+              goal_str.c_str(), x, y);
+
   return true;
 }
 
