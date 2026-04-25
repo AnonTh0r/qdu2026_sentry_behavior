@@ -9,7 +9,7 @@ public:
   {
     spin_speed_ = this->declare_parameter("spin_speed", 3.0);
     cooldown_ms_ = this->declare_parameter("cooldown_ms", 2000);
-    topic_name_ = this->declare_parameter("spin_topic", "/spin_speed");
+    topic_name_ = this->declare_parameter("spin_topic", "cmd_spin");
 
     spin_pub_ = this->create_publisher<example_interfaces::msg::Float32>(topic_name_, 1);
 
