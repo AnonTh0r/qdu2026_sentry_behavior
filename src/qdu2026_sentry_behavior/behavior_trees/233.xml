@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+    <BehaviorTree ID="233">
+        <KeepRunningUntilFailure>
+            <Sequence>
+                <SetBlackboard>
+                    <entry key="trans_x" value="1.0"/>
+                    <entry key="trans_y" value="-1.0"/>
+                    <entry key="trans_w" value="4.0"/>
+                </SetBlackboard>
+
+                <RetryUntilSuccessful num_attempts="-1">
+                    <IsGameStatus expected_game_progress="4"
+                                  key_port="{@referee_gameStatus}"/>
+                </RetryUntilSuccessful>
+
+                <PubNav2Goal goal="1.0;0.0;0.0" topic_name="goal_pose"/>
+                <Sleep msec="3000"/>
+
+                <Fallback>
+                    <!-- 第一层：血量300以上进行四点随机巡逻 + 遇敌追击 -->
+                    <Sequence>
+                        <IsStatusOK hp_min="300"
+                                    key_port="{@referee_robotStatus}"/>
+                        <WhileDoElse>
+                            <IsDetectEnemy armor_id="1;2;3;4;5;7"
+                                           max_distance="8.0"
+                                           key_port="{@detector_armors}"/>
+                            <Sequence>
+                                <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
+                                                     tracker_port="{@tracker_target}"
+                                                     goal="{attack_pose}"
+                                                     topic_name="debug_attack_pose"/>
+                                <PubNav2Goal goal="{attack_pose}" topic_name="goal_pose"/>
+                            </Sequence>
+                            <RandomSelector>
+                                <Sequence>
+                                    <PubNav2Goal goal="2.0;1.0;0.0" topic_name="goal_pose"/>
+                                    <Sleep msec="2000"/>
+                                </Sequence>
+                                <Sequence>
+                                    <PubNav2Goal goal="-1.0;2.0;0.0" topic_name="goal_pose"/>
+                                    <Sleep msec="2000"/>
+                                </Sequence>
+                                <Sequence>
+                                    <PubNav2Goal goal="-2.0;-1.0;0.0" topic_name="goal_pose"/>
+                                    <Sleep msec="2000"/>
+                                </Sequence>
+                                <Sequence>
+                                    <PubNav2Goal goal="1.0;-2.0;0.0" topic_name="goal_pose"/>
+                                    <Sleep msec="2000"/>
+                                </Sequence>
+                            </RandomSelector>
+                        </WhileDoElse>
+                    </Sequence>
+
+                    <!-- 第二层：血量150-300之间进行英雄追踪 + 遇敌追击 -->
+                    <Sequence>
+                        <IsStatusOK hp_min="150"
+                                    key_port="{@referee_robotStatus}"/>
+                        <WhileDoElse>
+                            <IsDetectEnemy armor_id="1;2;3;4;5;7"
+                                           max_distance="8.0"
+                                           key_port="{@detector_armors}"/>
+                            <Sequence>
+                                <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
+                                                     tracker_port="{@tracker_target}"
+                                                     goal="{attack_pose}"
+                                                     topic_name="debug_attack_pose"/>
+                                <PubNav2Goal goal="{attack_pose}" topic_name="goal_pose"/>
+                            </Sequence>
+                            <Sequence>
+                                <AllyBot costmap_port="{@nav_globalCostmap}"
+                                         allybot_port="{@referee_allyBot}"
+                                         select="1"
+                                         trans_x="{trans_x}"
+                                         trans_y="{trans_y}"
+                                         trans_w="{trans_w}"
+                                         goal="{ally_approach_pose}"
+                                         topic_name="debug_ally_pose"/>
+                                <PubNav2Goal goal="{ally_approach_pose}" topic_name="goal_pose"/>
+                            </Sequence>
+                        </WhileDoElse>
+                    </Sequence>
+
+                    <!-- 第三层：血量低于150时回补给区 -->
+                    <PubNav2Goal goal="0.0;0.0;0.0" topic_name="goal_pose"/>
+                </Fallback>
+            </Sequence>
+        </KeepRunningUntilFailure>
+    </BehaviorTree>
+
+    <TreeNodesModel>
+        <Condition ID="IsGameStatus" editable="true">
+            <input_port name="expected_game_progress"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Condition ID="IsStatusOK" editable="true">
+            <input_port name="hp_min"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Condition ID="IsDetectEnemy" editable="true">
+            <input_port name="armor_id"/>
+            <input_port name="max_distance"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Action ID="PubNav2Goal" editable="true">
+            <input_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Action ID="CalculateAttackPose">
+            <input_port name="costmap_port"/>
+            <input_port name="tracker_port"/>
+            <output_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Action ID="AllyBot">
+            <input_port name="costmap_port"/>
+            <input_port name="allybot_port"/>
+            <input_port name="select"/>
+            <input_port name="trans_x"/>
+            <input_port name="trans_y"/>
+            <input_port name="trans_w"/>
+            <output_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+    </TreeNodesModel>
+</root>
