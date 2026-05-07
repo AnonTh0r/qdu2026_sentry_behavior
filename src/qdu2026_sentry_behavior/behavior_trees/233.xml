@@ -33,24 +33,16 @@
                                                      topic_name="debug_attack_pose"/>
                                 <PubNav2Goal goal="{attack_pose}" topic_name="goal_pose"/>
                             </Sequence>
-                            <RandomSelector>
-                                <Sequence>
-                                    <PubNav2Goal goal="2.0;1.0;0.0" topic_name="goal_pose"/>
-                                    <Sleep msec="2000"/>
-                                </Sequence>
-                                <Sequence>
-                                    <PubNav2Goal goal="-1.0;2.0;0.0" topic_name="goal_pose"/>
-                                    <Sleep msec="2000"/>
-                                </Sequence>
-                                <Sequence>
-                                    <PubNav2Goal goal="-2.0;-1.0;0.0" topic_name="goal_pose"/>
-                                    <Sleep msec="2000"/>
-                                </Sequence>
-                                <Sequence>
-                                    <PubNav2Goal goal="1.0;-2.0;0.0" topic_name="goal_pose"/>
-                                    <Sleep msec="2000"/>
-                                </Sequence>
-                            </RandomSelector>
+                            <Sequence>
+                                <PubNav2Goal goal="2.0;1.0;0.0" topic_name="goal_pose"/>
+                                <Sleep msec="2000"/>
+                                <PubNav2Goal goal="-1.0;2.0;0.0" topic_name="goal_pose"/>
+                                <Sleep msec="2000"/>
+                                <PubNav2Goal goal="-2.0;-1.0;0.0" topic_name="goal_pose"/>
+                                <Sleep msec="2000"/>
+                                <PubNav2Goal goal="1.0;-2.0;0.0" topic_name="goal_pose"/>
+                                <Sleep msec="2000"/>
+                            </Sequence>
                         </WhileDoElse>
                     </Sequence>
 
