@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
+    <SetBlackboard>
+        <entry key="trans_x" value="1.0"/>
+        <entry key="trans_y" value="-1.0"/>
+        <entry key="trans_w" value="4.0"/>
+    </SetBlackboard>
     <BehaviorTree ID="233">
         <KeepRunningUntilFailure>
             <Sequence>
-                <SetBlackboard>
-                    <entry key="trans_x" value="1.0"/>
-                    <entry key="trans_y" value="-1.0"/>
-                    <entry key="trans_w" value="4.0"/>
-                </SetBlackboard>
-
                 <RetryUntilSuccessful num_attempts="-1">
                     <IsGameStatus expected_game_progress="4"
                                   key_port="{@referee_gameStatus}"/>
