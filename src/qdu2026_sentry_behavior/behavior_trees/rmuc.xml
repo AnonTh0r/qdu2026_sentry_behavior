@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="rmuc">
+    <KeepRunningUntilFailure>
+      <Sequence>
+
+        <!-- 等待比赛进入阶段4（比赛进行中） -->
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+
+        <!-- 主循环: HP检查 + 巡逻点交替 -->
+        <KeepRunningUntilFailure>
+          <Sequence>
+
+            <!-- HP检查：低就回家，正常就继续 -->
+            <Fallback>
+              <Sequence>
+                <IsHpLow hp_threshold="200"
+                         key_port="{@referee_robotStatus}"/>
+                <PubNav2Goal goal="1.1;0.44;0"
+                             topic_name="goal_pose"/>
+                <WaitUntilReached tolerance="0.5"
+                                  odom="{@odom}"
+                                  goal="1.1;0.44;0"/>
+              </Sequence>
+              <AlwaysSuccess/>
+            </Fallback>
+
+            <!-- 巡逻点1 -->
+            <PubNav2Goal goal="1.62;-7.12;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="1.62;-7.12;0"/>
+
+            <!-- HP检查 -->
+            <Fallback>
+              <Sequence>
+                <IsHpLow hp_threshold="200"
+                         key_port="{@referee_robotStatus}"/>
+                <PubNav2Goal goal="1.1;0.44;0"
+                             topic_name="goal_pose"/>
+                <WaitUntilReached tolerance="0.5"
+                                  odom="{@odom}"
+                                  goal="1.1;0.44;0"/>
+              </Sequence>
+              <AlwaysSuccess/>
+            </Fallback>
+
+            <!-- 巡逻点2 -->
+            <PubNav2Goal goal="0.06;-0.06;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="0.06;-0.06;0"/>
+
+            <!-- HP检查 -->
+            <Fallback>
+              <Sequence>
+                <IsHpLow hp_threshold="200"
+                         key_port="{@referee_robotStatus}"/>
+                <PubNav2Goal goal="1.1;0.44;0"
+                             topic_name="goal_pose"/>
+                <WaitUntilReached tolerance="0.5"
+                                  odom="{@odom}"
+                                  goal="1.1;0.44;0"/>
+              </Sequence>
+              <AlwaysSuccess/>
+            </Fallback>
+
+            <!-- 巡逻点3 -->
+            <PubNav2Goal goal="-2.31;0.77;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="-2.31;0.77;0"/>
+
+            <!-- HP检查 -->
+            <Fallback>
+              <Sequence>
+                <IsHpLow hp_threshold="200"
+                         key_port="{@referee_robotStatus}"/>
+                <PubNav2Goal goal="1.1;0.44;0"
+                             topic_name="goal_pose"/>
+                <WaitUntilReached tolerance="0.5"
+                                  odom="{@odom}"
+                                  goal="1.1;0.44;0"/>
+              </Sequence>
+              <AlwaysSuccess/>
+            </Fallback>
+
+            <!-- 巡逻点4 -->
+            <PubNav2Goal goal="-4.0;0.81;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="-4.0;0.81;0"/>
+
+            <!-- HP检查 -->
+            <Fallback>
+              <Sequence>
+                <IsHpLow hp_threshold="200"
+                         key_port="{@referee_robotStatus}"/>
+                <PubNav2Goal goal="1.1;0.44;0"
+                             topic_name="goal_pose"/>
+                <WaitUntilReached tolerance="0.5"
+                                  odom="{@odom}"
+                                  goal="1.1;0.44;0"/>
+              </Sequence>
+              <AlwaysSuccess/>
+            </Fallback>
+
+            <!-- 巡逻点5 -->
+            <PubNav2Goal goal="7.29;-0.89;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="7.29;-0.89;0"/>
+
+          </Sequence>
+        </KeepRunningUntilFailure>
+
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsGameStatus" editable="true">
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="IsHpLow" editable="true">
+      <input_port name="hp_threshold"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="PubNav2Goal" editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+    </Action>
+    <Condition ID="WaitUntilReached">
+      <input_port name="tolerance" default="0.500000" type="double">Distance tolerance in meters</input_port>
+      <input_port name="odom" default="{@odom}" type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;">Current odometry from blackboard</input_port>
+      <input_port name="goal" type="std::string">Target position in format 'x;y;yaw'</input_port>
+    </Condition>
+  </TreeNodesModel>
+
+</root>
