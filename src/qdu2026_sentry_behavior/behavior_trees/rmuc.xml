@@ -10,6 +10,10 @@
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
 
+        <!-- 导航到巡逻区间入口（一次性，独立于巡逻和回家逻辑） -->
+        <PubNav2Goal goal="0.0;-4.0;0" topic_name="goal_pose"/>
+        <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="0.0;-4.0;0"/>
+
         <!-- ReactiveFallback: 每个 tick 都先检查 HP，确保随时可打断巡逻 -->
         <ReactiveFallback>
 
