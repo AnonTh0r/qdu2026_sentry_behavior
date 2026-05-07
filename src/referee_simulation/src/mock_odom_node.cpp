@@ -29,7 +29,7 @@ public:
         RCLCPP_INFO(get_logger(), "New goal: (%.2f, %.2f)", target_x_, target_y_);
       });
 
-    odom_pub_ = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+    odom_pub_ = create_publisher<nav_msgs::msg::Odometry>("/odometry", 10);
 
     timer_ = create_wall_timer(
       std::chrono::milliseconds(period_ms),
