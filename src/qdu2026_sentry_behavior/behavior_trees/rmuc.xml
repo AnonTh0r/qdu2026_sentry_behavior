@@ -10,38 +10,37 @@
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
 
-        <!-- 主循环 -->
-        <KeepRunningUntilFailure>
+        <!-- ReactiveFallback: 每个 tick 都先检查 HP，确保随时可打断巡逻 -->
+        <ReactiveFallback>
+
+          <!-- 优先级1: HP低 → 回家 → 等回血 -->
           <Sequence>
-
-            <!-- HP低就回家+等回血，正常就跳过 -->
-            <Fallback>
-              <Sequence>
-                <IsHpLow hp_threshold="200"
-                         key_port="{@referee_robotStatus}"/>
-                <PubNav2Goal goal="1.1;0.44;0"
-                             topic_name="goal_pose"/>
-                <WaitUntilReached tolerance="0.5"
-                                  odom="{@odom}"
-                                  goal="1.1;0.44;0"/>
-                <StayHome hp_min="350"
-                          key_port="{@referee_robotStatus}"/>
-              </Sequence>
-              <AlwaysSuccess/>
-            </Fallback>
-
-            <!-- 巡逻点 -->
-            <PubNav2Goal goal="1.62;-7.12;0" topic_name="goal_pose"/>
-            <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="1.62;-7.12;0"/>
-
-            <PubNav2Goal goal="0.06;-0.06;0" topic_name="goal_pose"/>
-            <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="0.06;-0.06;0"/>
-
-            <PubNav2Goal goal="-2.31;0.77;0" topic_name="goal_pose"/>
-            <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="-2.31;0.77;0"/>
-
+            <IsHpLow hp_threshold="200"
+                     key_port="{@referee_robotStatus}"/>
+            <PubNav2Goal goal="1.1;0.44;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="1.1;0.44;0"/>
+            <StayHome hp_min="350"
+                      key_port="{@referee_robotStatus}"/>
           </Sequence>
-        </KeepRunningUntilFailure>
+
+          <!-- 优先级2: 巡逻循环 -->
+          <KeepRunningUntilFailure>
+            <Sequence>
+              <PubNav2Goal goal="1.62;-7.12;0" topic_name="goal_pose"/>
+              <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="1.62;-7.12;0"/>
+
+              <PubNav2Goal goal="0.06;-0.06;0" topic_name="goal_pose"/>
+              <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="0.06;-0.06;0"/>
+
+              <PubNav2Goal goal="-2.31;0.77;0" topic_name="goal_pose"/>
+              <WaitUntilReached tolerance="0.5" odom="{@odom}" goal="-2.31;0.77;0"/>
+            </Sequence>
+          </KeepRunningUntilFailure>
+
+        </ReactiveFallback>
 
       </Sequence>
     </KeepRunningUntilFailure>
