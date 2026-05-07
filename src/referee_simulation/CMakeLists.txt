@@ -8,6 +8,7 @@ find_package(referee_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)  # RobotStatus 里用到 Pose 的话需要
 find_package(std_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 
 add_executable(referee_simulation_node
@@ -31,9 +32,20 @@ ament_target_dependencies(mock_navigate_through_poses
   nav2_msgs
 )
 
+add_executable(mock_odom_node
+  src/mock_odom_node.cpp
+)
+
+ament_target_dependencies(mock_odom_node
+  rclcpp
+  geometry_msgs
+  nav_msgs
+)
+
 install(TARGETS
   referee_simulation_node
   mock_navigate_through_poses
+  mock_odom_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
