@@ -12,9 +12,9 @@
 #include <string>
 
 #include "behaviortree_cpp/condition_node.h"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "nav_msgs/msg/odometry.hpp"
+#include "behaviortree_ros2/ros_node_params.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/int32.hpp"
 
 namespace qdu2026_sentry_behavior
 {
@@ -22,11 +22,14 @@ namespace qdu2026_sentry_behavior
 class WaitUntilReachedCondition : public BT::ConditionNode
 {
 public:
-  WaitUntilReachedCondition(const std::string & name, const BT::NodeConfig & config);
+  WaitUntilReachedCondition(
+    const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
   static BT::PortsList providedPorts();
 
 private:
   BT::NodeStatus tick() override;
+
+  std::atomic<int> goal_status_{0};
   rclcpp::Logger logger_ = rclcpp::get_logger("WaitUntilReached");
 };
 

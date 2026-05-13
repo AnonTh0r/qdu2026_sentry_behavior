@@ -16,6 +16,7 @@
   <build_depend>rclcpp_action</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>nav2_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
 
   <!-- 运行依赖：消息运行库 + 节点 -->
   <exec_depend>rosidl_default_runtime</exec_depend>
@@ -23,6 +24,7 @@
   <exec_depend>rclcpp_action</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav2_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
 
   <!-- 让这个包被视作一个 interface package（有 msg） -->
   <member_of_group>rosidl_interface_packages</member_of_group>

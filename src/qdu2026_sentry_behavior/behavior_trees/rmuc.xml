@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="rmuc">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="-1">
+          <IsGameStatus expected_game_progress="4"
+                        key_port="{@referee_gameStatus}"/>
+        </RetryUntilSuccessful>
+        <PubNav2Goal goal="-0.84;1.0;0"
+                     topic_name="goal_pose"
+                     republish_ms="0"/>
+        <Sleep msec="100"/>
+        <ReactiveFallback>
+          <Sequence>
+            <IsHpLow hp_threshold="390"
+                     key_port="{@referee_robotStatus}"/>
+            <PubNav2Goal goal="0;0.15;0"
+                         topic_name="goal_pose"
+                         republish_ms="100"/>
+            <StayHome hp_min="391"
+                      key_port="{@referee_robotStatus}"/>
+          </Sequence>
+          <KeepRunningUntilFailure>
+            <Sequence>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <PubNav2Goal goal="-1.27;2.84;0"
+                             topic_name="goal_pose"
+                             republish_ms="100"/>
+                <WaitUntilReached/>
+              </Parallel>
+              <Sleep msec="2000"/>
+              <Parallel failure_count="1"
+                        success_count="1">
+                <PubNav2Goal goal="0.74;4.62;0"
+                             topic_name="goal_pose"
+                             republish_ms="100"/>
+                <WaitUntilReached/>
+              </Parallel>
+              <Sleep msec="2000"/>
+            </Sequence>
+          </KeepRunningUntilFailure>
+        </ReactiveFallback>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsGameStatus"
+               editable="true">
+      <input_port name="expected_game_progress"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="IsHpLow"
+               editable="true">
+      <input_port name="hp_threshold"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Action ID="PubNav2Goal"
+            editable="true">
+      <input_port name="goal"/>
+      <input_port name="topic_name"/>
+      <input_port name="republish_ms"
+                  default="0"/>
+    </Action>
+    <Condition ID="StayHome"
+               editable="true">
+      <input_port name="hp_min"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="WaitUntilReached"/>
+  </TreeNodesModel>
+
+</root>

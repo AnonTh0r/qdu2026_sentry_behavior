@@ -8,16 +8,35 @@
                         key_port="{@referee_gameStatus}"/>
         </RetryUntilSuccessful>
         <ReactiveFallback>
+          <!-- 优先级1: HP低 -> 回家 -->
           <Sequence>
             <IsHpLow hp_threshold="200"
                      key_port="{@referee_robotStatus}"/>
-            <ReactiveSequence>
-              <PubNav2Goal goal="1.1;0.44;0"
-                           topic_name="goal_pose"/>
-            </ReactiveSequence>
+            <PubNav2Goal goal="1.1;0.44;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="1.1;0.44;0"/>
           </Sequence>
-          <PubNav2Goal goal="1.62;-7.12;0"
-                       topic_name="goal_pose"/>
+
+          <!-- 优先级2: 巡逻点1 -->
+          <Sequence>
+            <PubNav2Goal goal="1.62;-7.12;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="1.62;-7.12;0"/>
+          </Sequence>
+
+          <!-- 优先级3: 巡逻点2 -->
+          <Sequence>
+            <PubNav2Goal goal="0.06;-0.06;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached tolerance="0.5"
+                              odom="{@odom}"
+                              goal="0.06;-0.06;0"/>
+          </Sequence>
+
           <AlwaysSuccess/>
         </ReactiveFallback>
       </Sequence>
@@ -40,6 +59,16 @@
                editable="true">
       <input_port name="goal"/>
       <input_port name="topic_name"/>
+    </Condition>
+    <Condition ID="WaitUntilReached">
+      <input_port name="tolerance"
+                  default="0.500000"
+                  type="double">Distance tolerance in meters</input_port>
+      <input_port name="odom"
+                  default="{@odom}"
+                  type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;">Current odometry from blackboard</input_port>
+      <input_port name="goal"
+                  type="std::string">Target position in format 'x;y;yaw'</input_port>
     </Condition>
   </TreeNodesModel>
 

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+    <BehaviorTree ID="hero_follow">
+        <KeepRunningUntilFailure>
+            <WhileDoElse>
+                <IsGameStatus expected_game_progress="4"
+                              key_port="{@referee_gameStatus}"/>
+                <WhileDoElse>
+                    <IsStatusOK hp_min="200"
+                                key_port="{@referee_robotStatus}"/>
+                    <WhileDoElse>
+                        <HomeCheck basic_hp="{@basic_hp}"
+                                   outpost_hp_limit="0"
+                                   base_hp_limit="100"/>
+                        <Sequence>
+                            <WhileDoElse>
+                                <IsDetectEnemy armor_id="1;2;3;4;5;7"
+                                               max_distance="8.0"
+                                               key_port="{@detector_armors}"/>
+                                <Sequence>
+                                    <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
+                                                         tracker_port="{@tracker_target}"
+                                                         goal="{attack_pose}"
+                                                         topic_name="debug_attack_pose"/>
+                                    <SendNav2Goal goal="{attack_pose}"
+                                                  server_name="navigate_to_pose"/>
+                                </Sequence>
+                                <Sequence>
+                                    <AllyBot costmap_port="{@nav_globalCostmap}"
+                                             allybot_port="{@referee_allyBot}"
+                                             select="1"
+                                             trans_x="{trans_x}"
+                                             trans_y="{trans_y}"
+                                             trans_w="{trans_w}"
+                                             goal="{ally_approach_pose}"
+                                             topic_name="debug_ally_pose"/>
+                                    <PubNav2Goal goal="{ally_approach_pose}"
+                                                 topic_name="goal_pose"/>
+                                </Sequence>
+                            </WhileDoElse>
+                        </Sequence>
+                        <Sequence>
+                            <PubNav2Goal goal="1.04;-0.599;0.0302"
+                                         topic_name="goal_pose"/>
+                            <Sleep msec="4000"/>
+                            <PubNav2Goal goal="0.502;-2.74;0.0181"
+                                         topic_name="goal_pose"/>
+                            <Sleep msec="4000"/>
+                        </Sequence>
+                    </WhileDoElse>
+                    <Sequence>
+                        <PubNav2Goal goal="0.259;-4.56;0.00563"
+                                     topic_name="goal_pose"/>
+                    </Sequence>
+                </WhileDoElse>
+                <Sequence>
+                    <PubNav2Goal goal="-1.52;1.18;0.00299"
+                                 topic_name="goal_pose"/>
+                    <Sleep msec="2000"/>
+                </Sequence>
+            </WhileDoElse>
+        </KeepRunningUntilFailure>
+    </BehaviorTree>
+
+    <TreeNodesModel>
+        <Condition ID="IsGameStatus" editable="true">
+            <input_port name="expected_game_progress"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Condition ID="IsStatusOK" editable="true">
+            <input_port name="hp_min"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Condition ID="HomeCheck">
+            <input_port name="basic_hp"/>
+            <input_port name="outpost_hp_limit"/>
+            <input_port name="base_hp_limit"/>
+        </Condition>
+        <Condition ID="IsDetectEnemy" editable="true">
+            <input_port name="armor_id"/>
+            <input_port name="max_distance"/>
+            <input_port name="key_port"/>
+        </Condition>
+        <Action ID="SendNav2Goal">
+            <input_port name="goal"/>
+            <input_port name="server_name"/>
+        </Action>
+        <Action ID="PubNav2Goal" editable="true">
+            <input_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Action ID="CalculateAttackPose">
+            <input_port name="costmap_port"/>
+            <input_port name="tracker_port"/>
+            <output_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+        <Action ID="AllyBot">
+            <input_port name="costmap_port"/>
+            <input_port name="allybot_port"/>
+            <input_port name="select"/>
+            <input_port name="trans_x"/>
+            <input_port name="trans_y"/>
+            <input_port name="trans_w"/>
+            <output_port name="goal"/>
+            <input_port name="topic_name"/>
+        </Action>
+    </TreeNodesModel>
+</root>

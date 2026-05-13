@@ -39,7 +39,22 @@
       "Bash(xargs dpkg:*)",
       "Bash(ls /home/yelle233/qdu2026_behavior_rmul/*.sh)",
       "Bash(grep -r \"PublishSpinSpeed\\\\|PubSpinSpeed\\\\|spin_speed\" /home/yelle233/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/*.xml)",
-      "Bash(grep -r \"cmd_vel\\\\|Twist\" /home/yelle233/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/*.xml)"
+      "Bash(grep -r \"cmd_vel\\\\|Twist\" /home/yelle233/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/*.xml)",
+      "Bash(grep -r \"test_navigation\" /home/navii/code/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/*.xml)",
+      "Bash(grep -r \"BTCPP_format\" /home/navii/code/qdu2026_behavior_rmul/src/qdu2026_sentry_behavior/behavior_trees/*.xml)",
+      "Bash(git config:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git stash:*)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --msg-filter 'sed \"/^Co-Authored-By: Claude/d\"' 76b2ce7^..HEAD)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(awk '{print $NF}')",
+      "Bash(awk '{if \\($10 == \"OK:\"\\) print \"OK\"; else if \\($9 == \"low:\"\\) print \"LOW\"}')",
+      "Bash(xargs ls *)",
+      "Bash(ros2 pkg *)",
+      "Bash(apt search *)",
+      "Bash(sudo apt *)"
     ]
   }
 }
