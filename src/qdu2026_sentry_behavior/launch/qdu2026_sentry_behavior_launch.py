@@ -103,6 +103,14 @@ def generate_launch_description():
                 parameters=[configured_params],
                 arguments=["--ros-args", "--log-level", log_level],
             ),
+            Node(
+                package="twist_mux",
+                executable="twist_mux",
+                name="twist_mux",
+                output="screen",
+                parameters=[os.path.join(bringup_dir, "params", "twist_mux.yaml")],
+                remappings=[("cmd_vel_out", "/cmd_vel_mux")],
+            ),
         ]
     )
 

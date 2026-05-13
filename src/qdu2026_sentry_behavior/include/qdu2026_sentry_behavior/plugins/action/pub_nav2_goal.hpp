@@ -5,36 +5,39 @@
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 #ifndef qdu2026_sentry_behavior__PLUGINS__ACTION__PUB_NAV2_GOAL_HPP_
 #define qdu2026_sentry_behavior__PLUGINS__ACTION__PUB_NAV2_GOAL_HPP_
 
 #include <string>
 
-#include "behaviortree_ros2/bt_topic_pub_node.hpp"
+#include "behaviortree_cpp/condition_node.h"
+#include "behaviortree_ros2/ros_node_params.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace qdu2026_sentry_behavior
 {
-class PubNav2GoalAction : public BT::RosTopicPubNode<geometry_msgs::msg::PoseStamped>
+class PubNav2GoalAction : public BT::ConditionNode
 {
 public:
   PubNav2GoalAction(
     const std::string & name, const BT::NodeConfig & conf, const BT::RosNodeParams & params);
 
   static BT::PortsList providedPorts();
-
-  bool setMessage(geometry_msgs::msg::PoseStamped & goal) override;
+  BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Logger logger() { return node_->get_logger(); }
-  rclcpp::Time now() { return node_->now(); }
+  bool createPublisher(const std::string & topic_name);
+  bool setMessage(geometry_msgs::msg::PoseStamped & goal);
+
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
+  std::string prev_topic_name_;
+  bool topic_name_may_change_{false};
+
+  int republish_ms_{0};
+  rclcpp::Time last_publish_time_{0, 0, RCL_ROS_TIME};
 };
 }  // namespace qdu2026_sentry_behavior
 
