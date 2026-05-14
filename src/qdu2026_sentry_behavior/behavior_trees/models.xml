@@ -16,6 +16,20 @@
             <input_port name="frame_id" type="std::string" default="map">Coordinate frame, default map</input_port>
             <input_port name="action_name" type="std::string" default="">Action server name</input_port>
         </Action>
+        <Condition ID="GetCurrentPose">
+            <output_port name="current_pose" type="int">当前工作姿态: 1=进攻, 2=防御, 3=移动/巡逻, 0=未知</output_port>
+            <input_port name="key_port" type="referee_interfaces::msg::SentryState_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_sentryState}">SentryState port on blackboard</input_port>
+        </Condition>
+        <Action ID="GetDetectedRfid">
+            <output_port name="detected_rfid" type="std::string">检测到的RFID类型: friendly_fortress_gain_point, center_gain_point, friendly_supply_zone_non_exchange, friendly_supply_zone_exchange, 或 none</output_port>
+            <input_port name="key_port" type="referee_interfaces::msg::RfidStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_rfidStatus}">RfidStatus port on blackboard</input_port>
+        </Action>
+        <Condition ID="HomeCheck">
+            <input_port name="team" type="std::string" default="blue">Team color: red or blue</input_port>
+            <input_port name="outpost_hp_limit" type="int" default="0">Outpost HP threshold below which home is unsafe</input_port>
+            <input_port name="base_hp_limit" type="int" default="0">Base HP threshold below which home is unsafe</input_port>
+            <input_port name="key_port" type="referee_interfaces::msg::GameRobotHP_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_allRobotHP}">GameRobotHP port on blackboard</input_port>
+        </Condition>
         <Condition ID="IsAttacked">
             <output_port name="gimbal_yaw" type="float" default="{gimbal_yaw}">Move gimbal_yaw to the direction of the hit armor plate</output_port>
             <output_port name="gimbal_pitch" type="float" default="{gimbal_pitch}">Move gimbal_pitch (const 0.0) to the direction of the hit armor plate</output_port>
@@ -40,6 +54,15 @@
             <input_port name="hp_threshold" type="int" default="210">HP threshold for critical low state</input_port>
             <input_port name="key_port" type="referee_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_robotStatus}">RobotStatus port on blackboard</input_port>
         </Condition>
+        <Condition ID="IsOutpostDestroyed">
+            <input_port name="team" type="std::string" default="blue">Team color: red or blue</input_port>
+            <input_port name="hp_threshold" type="int" default="0">Outpost HP threshold (destroyed when &lt;= this)</input_port>
+            <input_port name="key_port" type="referee_interfaces::msg::GameRobotHP_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_allRobotHP}">GameRobotHP port on blackboard</input_port>
+        </Condition>
+        <Condition ID="IsProjectileAllowanceLow">
+            <input_port name="allowance_threshold" type="int" default="50">Projectile allowance threshold</input_port>
+            <input_port name="key_port" type="referee_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_robotStatus}">RobotStatus port on blackboard</input_port>
+        </Condition>
         <Condition ID="IsRfidDetected">
             <input_port name="friendly_supply_zone_exchange" type="bool" default="false">己方与兑换区重叠的补给区</input_port>
             <input_port name="friendly_supply_zone_non_exchange" type="bool" default="false">己方与兑换区不重叠的补给区 / RMUL 补给区</input_port>
@@ -61,9 +84,16 @@
             <input_port name="frame_id" type="std::string" default="map">Coordinate frame, default map</input_port>
             <input_port name="action_name" type="std::string" default="">Action server name</input_port>
         </Action>
+        <Condition ID="PoseControl">
+            <output_port name="current_pose" type="int">当前姿态: 1=进攻, 2=防御, 3=移动, 0=未知</output_port>
+            <input_port name="topic_name" type="std::string" default="/referee/set_pose">Topic name</input_port>
+            <input_port name="target_pose" type="int">目标姿态 (可选): 1=进攻, 2=防御, 3=移动</input_port>
+            <input_port name="key_port" type="referee_interfaces::msg::SentryState_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_sentryState}">SentryState from blackboard</input_port>
+        </Condition>
         <Condition ID="PubNav2Goal">
+            <input_port name="republish_ms" type="std::string" default="0">If &gt; 0, republish at this interval (ms) and stay RUNNING</input_port>
+            <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name to publish to</input_port>
             <input_port name="goal" type="std::string" default="0;0;0">Expected goal pose that send to nav2. Format `x;y;yaw` in map frame</input_port>
-            <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name</input_port>
         </Condition>
         <Condition ID="PubNav2GoalPose">
             <input_port name="goal_pose" type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Navigation goal pose</input_port>
@@ -114,11 +144,7 @@
         <Decorator ID="TickAfterTimeout">
             <input_port name="timeout" type="float">time in s to wait before ticking child again</input_port>
         </Decorator>
-        <Condition ID="WaitUntilReached">
-            <input_port name="tolerance" type="double" default="0.500000">Distance tolerance in meters</input_port>
-            <input_port name="odom" type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;" default="{@odom}">Current odometry from blackboard</input_port>
-            <input_port name="goal" type="std::string">Target position in format 'x;y;yaw'</input_port>
-        </Condition>
+        <Condition ID="WaitUntilReached"/>
         <Action ID="WriteStatus">
             <output_port name="max_hp" type="int" default="{max_hp}">Maximum HP</output_port>
             <output_port name="hp" type="int" default="{hp}">Current HP</output_port>

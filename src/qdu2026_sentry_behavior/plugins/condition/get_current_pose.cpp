@@ -37,24 +37,23 @@ BT::NodeStatus GetCurrentPoseCondition::tick()
   // 输出当前姿态
   setOutput("current_pose", static_cast<int>(current_state));
 
-  // 打印当前姿态信息
   std::string pose_name;
   switch (current_state) {
+    case 0:
+      pose_name = "Attack";
+      break;
     case 1:
-      pose_name = "进攻姿态 (Attack)";
+      pose_name = "Defence";
       break;
     case 2:
-      pose_name = "防御姿态 (Defence)";
-      break;
-    case 3:
-      pose_name = "移动/巡逻姿态 (Patrol)";
+      pose_name = "Patrol";
       break;
     default:
-      pose_name = "未知姿态 (Unknown)";
+      pose_name = "Unknown";
       break;
   }
 
-  RCLCPP_DEBUG(logger_, "当前工作姿态: %s (值: %d)", pose_name.c_str(), current_state);
+  RCLCPP_DEBUG(logger_, "Current pose: %s (%d)", pose_name.c_str(), current_state);
 
   return BT::NodeStatus::SUCCESS;
 }
@@ -65,7 +64,7 @@ BT::PortsList GetCurrentPoseCondition::providedPorts()
     BT::InputPort<referee_interfaces::msg::SentryState>(
       "key_port", "{@referee_sentryState}", "SentryState port on blackboard"),
     BT::OutputPort<int>(
-      "current_pose", "当前工作姿态: 1=进攻, 2=防御, 3=移动/巡逻, 0=未知"),
+      "current_pose", "0=Attack, 1=Defence, 2=Patrol"),
   };
 }
 }  // namespace qdu2026_sentry_behavior

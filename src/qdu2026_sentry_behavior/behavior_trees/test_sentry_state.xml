@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="test_sentry_state">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <RetryUntilSuccessful num_attempts="1">
+          <Sleep msec="10"/>
+        </RetryUntilSuccessful>
+        <GetCurrentPose current_pose="{current_pose}"
+                        key_port="{@referee_sentryState}"/>
+        <PoseControl key_port="{@referee_sentryState}"
+                     target_pose="0"
+                     current_pose="{current_pose}"
+                     topic_name="/referee/set_pose"/>
+        <Sleep msec="2000"/>
+        <PoseControl key_port="{@referee_sentryState}"
+                     target_pose="1"
+                     current_pose="{current_pose}"
+                     topic_name="/referee/set_pose"/>
+        <Sleep msec="2000"/>
+        <PoseControl key_port="{@referee_sentryState}"
+                     target_pose="2"
+                     current_pose="{current_pose}"
+                     topic_name="/referee/set_pose"/>
+        <Sleep msec="2000"/>
+      </Sequence>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="GetCurrentPose"
+               editable="true">
+      <output_port name="current_pose"/>
+      <input_port name="key_port"/>
+    </Condition>
+    <Condition ID="PoseControl"
+               editable="true">
+      <input_port name="key_port"/>
+      <input_port name="target_pose"/>
+      <output_port name="current_pose"/>
+      <input_port name="topic_name"/>
+    </Condition>
+  </TreeNodesModel>
+
+</root>

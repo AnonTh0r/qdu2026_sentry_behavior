@@ -54,7 +54,24 @@
       "Bash(xargs ls *)",
       "Bash(ros2 pkg *)",
       "Bash(apt search *)",
-      "Bash(sudo apt *)"
+      "Bash(sudo apt *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(git checkout *)",
+      "Bash(gh pr create --title 'feat: add mock_odom_node for odometry simulation' --body ' *)",
+      "Bash(git remote *)",
+      "Bash(ls -la /home/navii/code/rm_behavior/rm_behavior/behavior_trees/ 2>/dev/null)",
+      "Read(//home/navii/code/rm_behavior/rm_behavior/behavior_trees/**)",
+      "Bash(ls /home/navii/code/rm_behavior/rm_behavior/ 2>/dev/null)",
+      "Read(//home/navii/code/rm_behavior/rm_behavior/**)",
+      "Bash(find /home/navii/code/rm_behavior/ -type f -iname \"*homecheck*\" -o -type f -iname \"*home_check*\" -o -type f -iname \"*HomeCheck*\" 2>/dev/null)",
+      "Read(//home/navii/code/rm_behavior/**)",
+      "Bash(grep -r \"basic_hp\" /home/navii/code/rm_behavior/ --include=\"*.cpp\" --include=\"*.h\" --include=\"*.hpp\" --include=\"*.py\" --include=\"*.msg\" --include=\"*.proto\" -l 2>/dev/null)",
+      "Bash(ls /home/navii/code/ros2_libxr)",
+      "Read(//home/navii/code/ros2_libxr/**)",
+      "Bash(find /home/navii/code/ros2_libxr -type f -name \"*.msg\" 2>/dev/null)",
+      "Bash(grep -r \"all_robot_hp\\\\|basic_hp\\\\|game_robot_hp\" /home/navii/code/ros2_libxr --include=\"*.py\" --include=\"*.cpp\" --include=\"*.hpp\" --include=\"*.h\" --include=\"*.msg\" --include=\"*.idl\" 2>/dev/null)",
+      "Bash(grep -r \"publish\\\\|Publisher\\\\|create_publisher\" /home/navii/code/ros2_libxr --include=\"*.py\" --include=\"*.cpp\" --include=\"*.hpp\" --include=\"*.h\" 2>/dev/null | grep -i \"hp\\\\|robot_hp\\\\|referee\\\\|game_status\\\\|game_robot\" 2>/dev/null)"
     ]
   }
 }

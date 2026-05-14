@@ -5,7 +5,7 @@ qdu2026_sentry_behavior_server:
     tick_frequency: 10                           # 降低到 10 Hz，避免卡顿
     groot2_port: 1667                           # Optional (defaults to 1667)
     ros_plugins_timeout: 1000                   # Optional (defaults 1000 ms)
-    use_cout_logger: true                       # Optional (defaults to false)
+    use_cout_logger: false                       # Optional (defaults to false)
 
     plugins:
       - qdu2026_sentry_behavior/bt_plugins
@@ -26,6 +26,11 @@ qdu2026_sentry_behavior_client:
   ros__parameters:
     use_sim_time: false
     # target_tree: rmul_2025/rmul_2026
-    target_tree: weilaibei
+    target_tree: rmuc
+
+spin_on_attack:
+  ros__parameters:
+    spin_speed: -0.1      # 受击旋转角速度 (rad/s)
+    cooldown_ms: 200    # 旋转持续时间 (ms)
     
 

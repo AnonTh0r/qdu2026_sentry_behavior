@@ -224,6 +224,15 @@ list(APPEND plugin_libs wait_until_reached)
 ament_auto_add_library(get_current_pose SHARED plugins/condition/get_current_pose.cpp)
 list(APPEND plugin_libs get_current_pose)
 
+ament_auto_add_library(home_check SHARED plugins/condition/home_check.cpp)
+list(APPEND plugin_libs home_check)
+
+ament_auto_add_library(is_outpost_destroyed SHARED plugins/condition/is_outpost_destroyed.cpp)
+list(APPEND plugin_libs is_outpost_destroyed)
+
+ament_auto_add_library(is_projectile_allowance_low SHARED plugins/condition/is_projectile_allowance_low.cpp)
+list(APPEND plugin_libs is_projectile_allowance_low)
+
 ####### Actions #######
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)
@@ -272,6 +281,9 @@ list(APPEND plugin_libs write_status)
 
 ament_auto_add_library(get_detected_rfid SHARED plugins/action/get_detected_rfid.cpp)
 list(APPEND plugin_libs get_detected_rfid)
+
+ament_auto_add_library(pose_control SHARED plugins/action/pose_control.cpp)
+list(APPEND plugin_libs pose_control)
 
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" project_name="Project">
-    <include path="src/qdu2026_sentry_behavior/behavior_trees/weilaibei.xml"/>
+    <include path="src/qdu2026_sentry_behavior/behavior_trees/rmuc.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
         <Condition ID="IsGameStatus" editable="true">
@@ -11,14 +11,15 @@
             <input_port name="hp_threshold"/>
             <input_port name="key_port"/>
         </Condition>
-        <Condition ID="PubNav2Goal" editable="true">
+        <Action ID="PubNav2Goal" editable="true">
             <input_port name="goal"/>
             <input_port name="topic_name"/>
+            <input_port name="republish_ms" default="0"/>
+        </Action>
+        <Condition ID="StayHome" editable="true">
+            <input_port name="hp_min"/>
+            <input_port name="key_port"/>
         </Condition>
-        <Condition ID="WaitUntilReached">
-            <input_port name="tolerance" default="0.500000" type="double">Distance tolerance in meters</input_port>
-            <input_port name="odom" default="{@odom}" type="nav_msgs::msg::Odometry_&lt;std::allocator&lt;void&gt; &gt;">Current odometry from blackboard</input_port>
-            <input_port name="goal" type="std::string">Target position in format 'x;y;yaw'</input_port>
-        </Condition>
+        <Condition ID="WaitUntilReached"/>
     </TreeNodesModel>
 </root>

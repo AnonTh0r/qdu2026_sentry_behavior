@@ -9,9 +9,10 @@
                     <IsStatusOK hp_min="200"
                                 key_port="{@referee_robotStatus}"/>
                     <WhileDoElse>
-                        <HomeCheck basic_hp="{@basic_hp}"
+                        <HomeCheck key_port="{@referee_allRobotHP}"
                                    outpost_hp_limit="0"
-                                   base_hp_limit="100"/>
+                                   base_hp_limit="100"
+                                   team="blue"/>
                         <Sequence>
                             <WhileDoElse>
                                 <IsDetectEnemy armor_id="1;2;3;4;5;7"
@@ -72,9 +73,10 @@
             <input_port name="key_port"/>
         </Condition>
         <Condition ID="HomeCheck">
-            <input_port name="basic_hp"/>
+            <input_port name="key_port"/>
             <input_port name="outpost_hp_limit"/>
             <input_port name="base_hp_limit"/>
+            <input_port name="team"/>
         </Condition>
         <Condition ID="IsDetectEnemy" editable="true">
             <input_port name="armor_id"/>

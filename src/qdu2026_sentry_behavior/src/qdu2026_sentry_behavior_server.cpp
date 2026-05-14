@@ -29,6 +29,7 @@
 #include "referee_interfaces/msg/ground_robot_position.hpp"
 #include "referee_interfaces/msg/rfid_status.hpp"
 #include "referee_interfaces/msg/robot_status.hpp"
+#include "referee_interfaces/msg/sentry_state.hpp"
 #include "referee_interfaces/msg/set_pose.hpp"
 #include "referee_interfaces/msg/operating_mode.hpp"
 
@@ -71,6 +72,7 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   subscribe<referee_interfaces::msg::RobotStatus>("/referee/robot_status", "referee_robotStatus");
   subscribe<referee_interfaces::msg::Buff>("/referee/buff", "referee_buff");
   subscribe<referee_interfaces::msg::OperatingMode>("/referee/operating_mode", "referee_operatingMode");
+  subscribe<referee_interfaces::msg::SentryState>("/referee/sentry_state", "referee_sentryState");
   subscribe<referee_interfaces::msg::SetPose>("/referee/set_pose", "referee_pose");
 
   auto detector_qos = rclcpp::SensorDataQoS();

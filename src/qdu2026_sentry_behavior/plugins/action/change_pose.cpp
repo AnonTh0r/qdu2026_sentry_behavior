@@ -16,7 +16,7 @@ ChangePose::ChangePose(
 BT::PortsList ChangePose::providedPorts()
 {
   return {
-    BT::InputPort<int>("current_pose", 1, "Pose mode (1: patrol, 2: attack, 3: defence)"),
+    BT::InputPort<int>("current_pose", 0, "Pose mode (0: attack, 1: defence, 2: patrol)"),
     BT::InputPort<std::string>("topic_name", "/referee/set_pose", "Topic name")
   };
 }
@@ -64,32 +64,31 @@ bool ChangePose::setMessage(referee_interfaces::msg::SetPose & msg)
     return false;
   }
 
-  if (current_pose < 1 || current_pose > 3) {
+  if (current_pose < 0 || current_pose > 2) {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Invalid current_pose value: %d (must be 1-3)", 
+      "Invalid current_pose value: %d (must be 0-2)",
       current_pose);
     return false;
   }
 
   msg.pose = static_cast<uint8_t>(current_pose);
-  msg.patrol_pose = 1;
-  msg.attack_pose = 2;
-  msg.defence_pose = 3;
+  msg.attack_pose = 0;
+  msg.defence_pose = 1;
+  msg.patrol_pose = 2;
 
-  // ✅ 修改这里：根据pose_mode打印不同的姿态名称
   std::string pose_name;
-  if (current_pose == 1) {
-    pose_name = "巡逻姿态 (Patrol)";
-  } else if (current_pose == 2) {
-    pose_name = "攻击姿态 (Attack)";
+  if (current_pose == 0) {
+    pose_name = "Attack";
+  } else if (current_pose == 1) {
+    pose_name = "Defence";
   } else {
-    pose_name = "防御姿态 (Defence)";
+    pose_name = "Patrol";
   }
 
   RCLCPP_INFO(
     node_->get_logger(),
-    "✓ 已切换到 %s (模式: %d)", 
+    "Changed to %s (mode: %d)",
     pose_name.c_str(),
     current_pose);
 
